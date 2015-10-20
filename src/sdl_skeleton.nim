@@ -4,7 +4,7 @@ from sdl2/image import nil
 from math import nil
 import drawable
 import common_types
-import spritesheet
+import entity
 
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
@@ -16,7 +16,7 @@ const
 var
   window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, screenWidth, screenHeight, sdl2.SDL_WINDOW_SHOWN)
   renderer: sdl2.RendererPtr = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
-  sprites: seq[SpriteSheet]
+  entities: seq[Entity]
 
 # images
 let
@@ -25,8 +25,8 @@ let
 
 # sprites
 var
-  sheet = spriteSheet(renderer, "sheet.png", 100, 100)
-sprites.add(sheet)
+  sheet = entity(renderer, "sheet.png", 100, 100)
+entities.add(sheet)
 
 var
   evt = sdl2.defaultEvent
@@ -42,13 +42,16 @@ while runGame:
       break
     elif evt.kind == sdl2.KeyDown or
         evt.kind == sdl2.MouseButtonDown:
-      for i in 0 .. sprites.len:
-        sprites[i].animate(renderer)
+      for i in 0 .. entities.len:
+        entities[i].renderAnimated(renderer)
 
   let dt = gfx.getFramerate(fpsman) / 1000
 
   sdl2.setDrawColor(renderer, 0, 0, 0, 255)
   sdl2.clear(renderer)
+
+  for entity in entities:
+    entity.render(renderer)
 
   for x in 0 .. int(math.ceil(screenWidth / tileSize)):
     for y in 0 .. int(math.ceil(screenHeight / tileSize)):

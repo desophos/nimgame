@@ -30,10 +30,9 @@ proc spriteSheet*(ren: sdl2.RendererPtr, file: string, size: Size): SpriteSheet 
 proc spriteSheet*(ren: sdl2.RendererPtr, file: string, w, h: int): SpriteSheet =
   spriteSheet(ren, file, Size(w: w, h: h))
 
-proc renderSprite*(sSheet: SpriteSheet, ren: sdl2.RendererPtr, dstView: View, which_view: int) =
-  sSheet.sheet.render(ren, dstView, sSheet.views[which_view])
+proc render*(sSheet: SpriteSheet, ren: sdl2.RendererPtr, pos: Position) =
+  sSheet.sheet.render(ren, view(pos, sSheet.views[sSheet.currentFrame].size), sSheet.views[sSheet.currentFrame])
 
-proc animate*(sSheet: var SpriteSheet, ren: sdl2.RendererPtr) =
-  sSheet.renderSprite(ren, sSheet.currentFrame)
+proc frameStep*(sSheet: var SpriteSheet) =
   # increment frame and wrap to first frame if we exceed the # of frames
   sSheet.currentFrame = (sSheet.currentFrame + 1) mod sSheet.views.len
