@@ -4,6 +4,7 @@ from sdl2/image import nil
 from math import nil
 import drawable
 import common_types
+import spritesheet
 
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
@@ -13,11 +14,8 @@ const
   tileSize: int = 40
 
 var
-  window: sdl2.WindowPtr
-  renderer: sdl2.RendererPtr
-
-window = sdl2.createWindow("SDL Skeleton", 100, 100, screenWidth, screenHeight, sdl2.SDL_WINDOW_SHOWN)
-renderer = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
+  window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, screenWidth, screenHeight, sdl2.SDL_WINDOW_SHOWN)
+  renderer: sdl2.RendererPtr = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
 
 let
   background = drawable(renderer, "background.png")
@@ -42,8 +40,6 @@ while runGame:
   sdl2.setDrawColor(renderer, 0, 0, 0, 255)
   sdl2.clear(renderer)
 
-  #var bW, bH: int
-  #sdl2.queryTexture(background, nil, nil, addr(bW), addr(bH))
   for x in 0 .. int(math.ceil(screenWidth / tileSize)):
     for y in 0 .. int(math.ceil(screenHeight / tileSize)):
       background.render(renderer, x * tileSize, y * tileSize, tileSize, tileSize)
@@ -54,7 +50,7 @@ while runGame:
   sdl2.present(renderer)
   sdl2.delay(uint32(dt))
 
-sdl2.destroy foreground.texture
-sdl2.destroy background.texture
+foreground.destroy
+background.destroy
 sdl2.destroy renderer
 sdl2.destroy window

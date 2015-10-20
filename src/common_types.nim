@@ -1,3 +1,11 @@
+import os
+
+proc getResourceFile*(file: string): string =
+  let
+    srcDir = os.getCurrentDir()
+    resDir = "res"
+  return os.joinPath(os.parentDir(srcDir), resDir, file)
+
 type
   Position* = object
     x*, y*: int

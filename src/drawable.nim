@@ -3,17 +3,14 @@ from sdl2 import nil
 from sdl2/image import nil
 import common_types
 
-proc getResourceFile(file: string): string =
-  let
-    srcDir = os.getCurrentDir()
-    resDir = "res"
-  return os.joinPath(os.parentDir(srcDir), resDir, file)
-
 type Drawable* = object of RootObj
   texture: sdl2.TexturePtr
 
 proc drawable*(ren: sdl2.RendererPtr, file: string): Drawable =
   return Drawable(texture: image.loadTexture(ren, getResourceFile(file)))
+
+proc destroy*(drawable: Drawable) =
+  sdl2.destroy drawable.texture
 
 proc render*(drawable: Drawable, ren: sdl2.RendererPtr, view: View) =
   var dst = sdl2.rect(
