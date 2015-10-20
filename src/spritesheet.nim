@@ -7,6 +7,7 @@ type SpriteSheet = object of RootObj
   views: seq[View]
   sprite_size: Size
   sheet: Drawable
+  currentFrame: int
 
 proc spriteSheet*(ren: sdl2.RendererPtr, file: string, size: Size): SpriteSheet =
   let
@@ -30,3 +31,8 @@ proc spriteSheet*(ren: sdl2.RendererPtr, file: string, w, h: int): SpriteSheet =
 
 proc renderSprite*(sSheet: SpriteSheet, ren: sdl2.RendererPtr, which_view: int) =
   sSheet.sheet.render(ren, sSheet.views[which_view])
+
+proc animate*(sSheet: var SpriteSheet, ren: sdl2.RendererPtr) =
+  sSheet.renderSprite(ren, sSheet.currentFrame)
+  # increment frame and wrap to first frame if we exceed the # of frames
+  sSheet.currentFrame = (sSheet.currentFrame + 1) mod sSheet.views.len
