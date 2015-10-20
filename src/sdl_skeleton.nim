@@ -16,24 +16,34 @@ const
 var
   window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, screenWidth, screenHeight, sdl2.SDL_WINDOW_SHOWN)
   renderer: sdl2.RendererPtr = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
+  sprites: seq[SpriteSheet]
 
+# images
 let
   background = drawable(renderer, "background.png")
   foreground = drawable(renderer, "image.png")
+
+# sprites
+var
+  sheet = spriteSheet(renderer, "sheet.png", 100, 100)
+sprites.add(sheet)
 
 var
   evt = sdl2.defaultEvent
   runGame = true
   fpsman: gfx.FpsManager
+
 gfx.init(fpsman)
 
 while runGame:
   while bool(sdl2.pollEvent(evt)):
-    if evt.kind == sdl2.QuitEvent or
-        evt.kind == sdl2.KeyDown or
-        evt.kind == sdl2.MouseButtonDown:
+    if evt.kind == sdl2.QuitEvent:
       runGame = false
       break
+    elif evt.kind == sdl2.KeyDown or
+        evt.kind == sdl2.MouseButtonDown:
+      for i in 0 .. sprites.len:
+        sprites[i].animate(renderer)
 
   let dt = gfx.getFramerate(fpsman) / 1000
 

@@ -3,7 +3,7 @@ from sdl2 import nil
 import drawable
 import common_types
 
-type SpriteSheet = object of RootObj
+type SpriteSheet* = object of RootObj
   views: seq[View]
   sprite_size: Size
   sheet: Drawable
@@ -29,8 +29,8 @@ proc spriteSheet*(ren: sdl2.RendererPtr, file: string, size: Size): SpriteSheet 
 proc spriteSheet*(ren: sdl2.RendererPtr, file: string, w, h: int): SpriteSheet =
   spriteSheet(ren, file, Size(w: w, h: h))
 
-proc renderSprite*(sSheet: SpriteSheet, ren: sdl2.RendererPtr, which_view: int) =
-  sSheet.sheet.render(ren, sSheet.views[which_view])
+proc renderSprite*(sSheet: SpriteSheet, ren: sdl2.RendererPtr, dstView: View, which_view: int) =
+  sSheet.sheet.render(ren, dstView, sSheet.views[which_view])
 
 proc animate*(sSheet: var SpriteSheet, ren: sdl2.RendererPtr) =
   sSheet.renderSprite(ren, sSheet.currentFrame)

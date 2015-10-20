@@ -12,13 +12,14 @@ proc drawable*(ren: sdl2.RendererPtr, file: string): Drawable =
 proc destroy*(drawable: Drawable) =
   sdl2.destroy drawable.texture
 
-proc render*(drawable: Drawable, ren: sdl2.RendererPtr, view: View) =
-  var dst = sdl2.rect(
-    x = cint(view.pos.x),
-    y = cint(view.pos.y),
-    w = cint(view.size.w),
-    h = cint(view.size.h)
-  )
+proc render*(drawable: Drawable, ren: sdl2.RendererPtr, dstView: View, srcView: View) =
+  var
+    src = SDLRectFromView(srcView)
+    dst = SDLRectFromView(dstView)
+  sdl2.copy(ren, drawable.texture, addr(src), addr(dst))
+
+proc render*(drawable: Drawable, ren: sdl2.RendererPtr, dstView: View) =
+  var dst = SDLRectFromView(dstView)
   sdl2.copy(ren, drawable.texture, nil, addr(dst))
 
 proc render*(drawable: Drawable, ren: sdl2.RendererPtr, x, y, w, h: int) =
