@@ -2,6 +2,7 @@ from os import nil
 from sdl2 import nil
 from sdl2/image import nil
 import common_types
+import util
 
 type Drawable* = object of RootObj
   texture: sdl2.TexturePtr

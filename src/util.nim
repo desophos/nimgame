@@ -1,5 +1,6 @@
 import os
 from sdl2 import nil
+import common_types
 
 proc getResourceFile*(file: string): string =
   let
