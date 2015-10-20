@@ -1,10 +1,5 @@
 import os
-
-proc getResourceFile*(file: string): string =
-  let
-    srcDir = os.getCurrentDir()
-    resDir = "res"
-  return os.joinPath(os.parentDir(srcDir), resDir, file)
+from sdl2 import nil
 
 type
   Position* = object
@@ -26,3 +21,17 @@ proc view*(x, y: int, size: Size): View =
 
 proc view*(pos: Position, size: Size): View =
   return View(pos: pos, size: size)
+
+proc getResourceFile*(file: string): string =
+  let
+    srcDir = os.getCurrentDir()
+    resDir = "res"
+  return os.joinPath(os.parentDir(srcDir), resDir, file)
+
+proc SDLRectFromView*(view: View): sdl2.Rect =
+  return sdl2.rect(
+    x = cint(view.pos.x),
+    y = cint(view.pos.y),
+    w = cint(view.size.w),
+    h = cint(view.size.h)
+  )
