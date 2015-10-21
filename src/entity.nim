@@ -2,7 +2,7 @@ from sdl2 import nil
 import common_types
 import spritesheet
 
-type Entity* = object of RootObj
+type Entity* = ref object of RootObj
   sprite: SpriteSheet
   pos: Position
   frameTimer: seq[int]
@@ -44,7 +44,7 @@ proc renderAnimated*(entity: var Entity, ren: sdl2.RendererPtr) =
     entity.sprite.frameStep
     entity.currentFrameTime = entity.frameTimer[entity.sprite.currentFrame]
 
-proc move*(entity: var Entity, dir: Direction, speed: int = 0) =
+proc move*(entity: var Entity, dir: Direction, speed: int = 10) =
   case dir
   of Direction.left:
     entity.pos.x -= speed
