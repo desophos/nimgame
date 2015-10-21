@@ -38,7 +38,6 @@ proc render(entity: Entity, ren: sdl2.RendererPtr) =
   entity.sprite.render(ren, entity.pos)
 
 proc renderAnimated*(entity: var Entity, ren: sdl2.RendererPtr) =
-  #echo entity.pos
   entity.render(ren)
   entity.currentFrameTime -= 1
   if entity.currentFrameTime <= 0:

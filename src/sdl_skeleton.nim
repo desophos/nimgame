@@ -63,15 +63,15 @@ while runGame:
   sdl2.setDrawColor(renderer, 0, 0, 0, 255)
   sdl2.clear(renderer)
 
-  for i in 0 .. entities.len - 1:
-    entities[i].renderAnimated(renderer)
-
   for x in 0 .. int(math.ceil(screenWidth / tileSize)):
     for y in 0 .. int(math.ceil(screenHeight / tileSize)):
       background.render(renderer, x * tileSize, y * tileSize, tileSize, tileSize)
 
   #let fSize = foreground.getSize
   #foreground.render(renderer, int((screenWidth - fSize.w) / 2), int((screenHeight - fSize.h) / 2))
+
+  for i in 0 .. entities.len - 1:
+    entities[i].renderAnimated(renderer)
 
   sdl2.present(renderer)
   sdl2.delay(uint32(dt))
