@@ -70,7 +70,7 @@ while runGame:
   #let fSize = foreground.getSize
   #foreground.render(renderer, int((screenWidth - fSize.w) / 2), int((screenHeight - fSize.h) / 2))
 
-  for i in 0 .. entities.len - 1:
+  for i in 0 ..< entities.len:
     entities[i].renderAnimated(renderer)
 
   sdl2.present(renderer)

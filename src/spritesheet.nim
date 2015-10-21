@@ -20,9 +20,9 @@ proc spriteSheet*(ren: sdl2.RendererPtr, file: string, size: Size): SpriteSheet 
   var
     views: seq[View] = @[]
     curX, curY: int
-  for y in 0 .. int(math.ceil(sheet_size.h / size.h)) - 1:
+  for y in 0 ..< int(math.ceil(sheet_size.h / size.h)):
     curX = 0
-    for x in 0 .. int(math.ceil(sheet_size.w / size.w)) - 1:
+    for x in 0 ..< int(math.ceil(sheet_size.w / size.w)):
       views.add(view(curX, curY, size.w, size.h))
       curX += size.w
     curY += size.h
