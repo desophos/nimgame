@@ -6,6 +6,7 @@ proc getResourceFile*(file: string): string =
   let
     srcDir = os.getCurrentDir()
     resDir = "res"
+  echo os.joinPath(os.parentDir(srcDir), resDir, file)
   return os.joinPath(os.parentDir(srcDir), resDir, file)
 
 proc SDLRectFromView*(view: View): sdl2.Rect =
