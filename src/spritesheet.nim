@@ -6,7 +6,7 @@ import util
 
 type SpriteSheet* = object of RootObj
   views: seq[View]
-  sprite_size: Size
+  frameSize: Size
   sheet: Drawable
   currentFrame*: int
 
@@ -26,7 +26,7 @@ proc spriteSheet*(ren: sdl2.RendererPtr, file: string, size: Size): SpriteSheet 
       views.add(view(curX, curY, size.w, size.h))
       curX += size.w
     curY += size.h
-  return SpriteSheet(views: views, sprite_size: size, sheet: sheet)
+  return SpriteSheet(views: views, frameSize: size, sheet: sheet)
 
 proc spriteSheet*(ren: sdl2.RendererPtr, file: string, w, h: int): SpriteSheet =
   return spriteSheet(ren, file, Size(w: w, h: h))
