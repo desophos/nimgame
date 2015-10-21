@@ -24,3 +24,14 @@ proc render*(entity: Entity, ren: sdl2.RendererPtr) =
 proc renderAnimated*(entity: var Entity, ren: sdl2.RendererPtr) =
   entity.render(ren)
   entity.sprite.frameStep
+
+proc move*(entity: var Entity, dir: Direction, speed: int = 0) =
+  case dir
+  of Direction.left:
+    entity.pos.x -= speed
+  of Direction.up:
+    entity.pos.y -= speed
+  of Direction.down:
+    entity.pos.y += speed
+  of Direction.right:
+    entity.pos.x += speed

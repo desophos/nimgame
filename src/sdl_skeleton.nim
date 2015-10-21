@@ -1,4 +1,4 @@
-from sdl2 import nil
+import sdl2
 from sdl2/gfx import nil
 from sdl2/image import nil
 from math import nil
@@ -25,8 +25,8 @@ let
 
 # sprites
 var
-  sheet = entity(renderer, "sheet.png", 100, 100)
-entities.add(sheet)
+  player = entity(renderer, "sheet.png", 100, 100)
+entities.add(player)
 
 var
   evt = sdl2.defaultEvent
@@ -37,13 +37,29 @@ gfx.init(fpsman)
 
 while runGame:
   while bool(sdl2.pollEvent(evt)):
-    if evt.kind == sdl2.QuitEvent:
+    case evt.kind
+    of sdl2.QuitEvent:
       runGame = false
       break
-    elif evt.kind == sdl2.KeyDown or
-        evt.kind == sdl2.MouseButtonDown:
+    of sdl2.MouseButtonDown:
       for i in 0 .. entities.len:
         entities[i].renderAnimated(renderer)
+    of sdl2.KeyDown:
+      # evt.key is an accessor that casts evt to KeyboardEventPtr
+      # so we can access the fields on KeyboardEventObj
+      case evt.key.keysym.sym
+      of sdl2.K_LEFT:
+        player.move(Direction.left)
+      of sdl2.K_UP:
+        player.move(Direction.up)
+      of sdl2.K_DOWN:
+        player.move(Direction.down)
+      of sdl2.K_RIGHT:
+        player.move(Direction.right)
+      else:
+        continue
+    else:
+      continue
 
   let dt = gfx.getFramerate(fpsman) / 1000
 

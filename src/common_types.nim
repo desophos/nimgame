@@ -6,6 +6,8 @@ type
   View* = object
     pos*: Position
     size*: Size
+  Direction* = enum
+    left, up, down, right
 
 proc view*(x, y, w, h: int): View =
   return View(pos: Position(x: x, y: y), size: Size(w: w, h: h))
