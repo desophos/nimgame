@@ -18,7 +18,7 @@ proc spriteSheet*(ren: sdl2.RendererPtr, file: string, size: Size): SpriteSheet 
   # views are in reading order
   # (in rows, left to right, top to bottom)
   var
-    views: seq[View]
+    views: seq[View] = @[]
     curX, curY: int
   for y in 0 .. int(math.ceil(sheet_size.h / size.h)):
     for x in 0 .. int(math.ceil(sheet_size.w / size.w)):

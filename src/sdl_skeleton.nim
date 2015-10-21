@@ -16,7 +16,7 @@ const
 var
   window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, screenWidth, screenHeight, sdl2.SDL_WINDOW_SHOWN)
   renderer: sdl2.RendererPtr = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
-  entities: seq[Entity]
+  entities: seq[Entity] = @[]
 
 # images
 let
@@ -42,7 +42,7 @@ while runGame:
       runGame = false
       break
     of sdl2.MouseButtonDown:
-      for i in 0 .. entities.len:
+      for i in 0 .. entities.len - 1:
         entities[i].renderAnimated(renderer)
     of sdl2.KeyDown:
       # evt.key is an accessor that casts evt to KeyboardEventPtr
