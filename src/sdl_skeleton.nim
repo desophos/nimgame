@@ -9,21 +9,23 @@ import entity
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
 const
-  screenWidth: cint = 640
-  screenHeight: cint = 480
+  screenWidth: int = 640
+  screenHeight: int = 480
+  cameraWidth: int = 320
+  cameraHeight: int = 240
   tileSize: int = 40
 
 var
-  window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, screenWidth, screenHeight, sdl2.SDL_WINDOW_SHOWN)
+  window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, cint(screenWidth), cint(screenHeight), sdl2.SDL_WINDOW_SHOWN)
   renderer: sdl2.RendererPtr = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
+  camera = view(int(screenWidth/2), int(screenHeight/2), cameraWidth, cameraHeight)
   entities: seq[Entity] = @[]
 
-# images
+# tiles (static background)
 let
-  background = drawable(renderer, "background.png")
-  foreground = drawable(renderer, "image.png")
+  background = drawable(renderer, "background.bmp")
 
-# sprites
+# entities (dynamic foreground)
 var
   player = entity(renderer, "sheet.png", 100, 100)
 entities.add(player)
@@ -63,20 +65,21 @@ while runGame:
   sdl2.setDrawColor(renderer, 0, 0, 0, 255)
   sdl2.clear(renderer)
 
-  for x in 0 .. int(math.ceil(screenWidth / tileSize)):
-    for y in 0 .. int(math.ceil(screenHeight / tileSize)):
-      background.render(renderer, x * tileSize, y * tileSize, tileSize, tileSize)
+  # tile background image across screen
+  #for x in 0 .. int(math.ceil(screenWidth / tileSize)):
+  #  for y in 0 .. int(math.ceil(screenHeight / tileSize)):
+  #    background.render(renderer, x * tileSize, y * tileSize, tileSize, tileSize)
 
-  #let fSize = foreground.getSize
-  #foreground.render(renderer, int((screenWidth - fSize.w) / 2), int((screenHeight - fSize.h) / 2))
+  background.render(renderer, camera, camera)
 
   for i in 0 ..< entities.len:
     entities[i].renderAnimated(renderer)
 
+  camera.track(player, 50, 0.1)
+
   sdl2.present(renderer)
   sdl2.delay(uint32(dt))
 
-foreground.destroy
 background.destroy
 sdl2.destroy renderer
 sdl2.destroy window
