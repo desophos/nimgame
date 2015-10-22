@@ -44,3 +44,6 @@ proc render*(sSheet: SpriteSheet, ren: sdl2.RendererPtr, pos: Position) =
 proc frameStep*(sSheet: var SpriteSheet) =
   # increment frame and wrap to first frame if we exceed the # of frames
   sSheet.currentFrame = (sSheet.currentFrame + 1) mod sSheet.views.len
+
+proc getSize*(sSheet: SpriteSheet): Size =
+  return sSheet.frameSize

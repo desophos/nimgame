@@ -4,7 +4,7 @@ import spritesheet
 
 type Entity* = ref object of RootObj
   sprite: SpriteSheet
-  pos: Position
+  pos*: Position
   frameTimer: seq[int]
   currentFrameTime: int  # decrement by 1 on each render
 
@@ -34,6 +34,13 @@ proc `pos=`*(entity: var Entity, pos: Position) =
 proc `pos=`*(entity: var Entity, x, y: int) =
   entity.pos = Position(x: x, y: y)
 
+proc center*(entity: Entity): Position =
+  let size = entity.sprite.getSize
+  return Position(
+    x: entity.pos.x + int(size.w / 2),
+    y: entity.pos.y + int(size.h / 2)
+  )
+
 proc render(entity: Entity, ren: sdl2.RendererPtr) =
   entity.sprite.render(ren, entity.pos)
 
@@ -54,3 +61,9 @@ proc move*(entity: var Entity, dir: Direction, speed: int = 10) =
     entity.pos.y += speed
   of Direction.right:
     entity.pos.x += speed
+
+# this proc needs a real home :( please adopt
+proc track*(view: var View, entity: Entity, trackDistance: int = 0, trackSpeedMult: float = 1) =
+  if not (view.smaller(trackDistance).contains(entity.center)):
+    view.pos = view.pos + (entity.center - view.center) * trackSpeedMult
+
