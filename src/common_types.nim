@@ -51,6 +51,42 @@ proc contains*(view: View, point: Position): bool =
          point.x < (view.pos.x + view.size.w) and
          point.y < (view.pos.y + view.size.h)
 
+proc contains*(v1: View, v2: View): bool =
+  # upper left corner and lower right corner
+  return v1.contains(
+          v2.pos
+        ) and
+        v1.contains(
+          Position(
+            x: v2.pos.x + v2.size.w,
+            y: v2.pos.y + v2.size.h
+          )
+        )
+
+proc intersects*(v1: View, v2: View): bool =
+  # any corner
+  return v1.contains(
+          v2.pos
+        ) or
+        v1.contains(
+          Position(
+            x: v2.pos.x + v2.size.w,
+            y: v2.pos.y + v2.size.h
+          )
+        ) or
+        v1.contains(
+          Position(
+            x: v2.pos.x + v2.size.w,
+            y: 0
+          )
+        ) or
+        v1.contains(
+          Position(
+            x: 0,
+            y: v2.pos.y + v2.size.h
+          )
+        )
+
 proc smaller*(view: View, distance: int): View =
   return view(
     view.pos.x + distance,

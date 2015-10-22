@@ -11,22 +11,22 @@ type Entity* = ref object of RootObj
 proc entity*(
   ren: sdl2.RendererPtr,
   file: string,
-  size: Size
+  view: View
 ): Entity =
-  let sprite = spriteSheet(ren, file, size)
+  let sprite = spriteSheet(ren, file, view.size)
   var frameTimer: seq[int] = @[]
   # completely temporary until i decide how to specify frame times
   for i in 0 .. sprite.numFrames:
     frameTimer.add(60)
   return Entity(
     sprite: sprite,
-    pos: Position(x: 0, y: 0),
+    pos: view.pos,
     frameTimer: frameTimer,
     currentFrameTime: frameTimer[0]
   )
 
 proc entity*(ren: sdl2.RendererPtr, file: string, w, h: int): Entity =
-  return entity(ren, file, Size(w: w, h: h))
+  return entity(ren, file, view(0, 0, Size(w: w, h: h)))
 
 proc `pos=`*(entity: var Entity, pos: Position) =
   entity.pos = pos
@@ -41,14 +41,20 @@ proc center*(entity: Entity): Position =
     y: entity.pos.y + int(size.h / 2)
   )
 
-proc render(entity: Entity, ren: sdl2.RendererPtr) =
+proc getView*(entity: Entity): View =
+  return view(entity.pos, entity.sprite.getSize)
+
+proc frameStep*(entity: var Entity) =
+  entity.sprite.frameStep
+
+proc render*(entity: Entity, ren: sdl2.RendererPtr) =
   entity.sprite.render(ren, entity.pos)
 
 proc renderAnimated*(entity: var Entity, ren: sdl2.RendererPtr) =
   entity.render(ren)
   entity.currentFrameTime -= 1
   if entity.currentFrameTime <= 0:
-    entity.sprite.frameStep
+    entity.frameStep
     entity.currentFrameTime = entity.frameTimer[entity.sprite.currentFrame]
 
 proc move*(entity: var Entity, dir: Direction, speed: int = 10) =
