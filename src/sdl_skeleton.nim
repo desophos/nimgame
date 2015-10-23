@@ -5,26 +5,26 @@ import entity, drawable, common_types, util
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
 const
-  screenWidth: int = 300
-  screenHeight: int = 400
-  cameraWidth: int = 150
-  cameraHeight: int = 150
   tileSize: int = 100
 
 var
-  window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, cint(screenWidth), cint(screenHeight), sdl2.SDL_WINDOW_SHOWN)
+  camera = view(0, 0, 320, 240)
+  window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, cint(camera.size.w), cint(camera.size.h), sdl2.SDL_WINDOW_SHOWN)
   renderer: sdl2.RendererPtr = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
-  camera = view(0, 0, cameraWidth, cameraHeight)
   entities: seq[Entity] = @[]
   background: seq[seq[Entity]] = @[]
 
 # tiles (static background)
 let
   tile_map = [
-    [0, 1, 0],
-    [1, 2, 1],
-    [2, 3, 2],
-    [3, 0, 3]
+    [0, 1, 0, 1, 0, 1, 0],
+    [1, 2, 1, 2, 1, 2, 1],
+    [2, 3, 2, 3, 2, 3, 2],
+    [3, 0, 3, 0, 3, 0, 3],
+    [0, 1, 0, 1, 0, 1, 0],
+    [1, 2, 1, 2, 1, 2, 1],
+    [2, 3, 2, 3, 2, 3, 2],
+    [3, 0, 3, 0, 3, 0, 3]
   ]
 
 # create tiled background
@@ -86,18 +86,19 @@ while runGame:
   for iRow in 0 ..< background.len:
     for iCol in 0 ..< background[iRow].len:
       if camera.intersects(background[iRow][iCol].getView):
-        background[iRow][iCol].render(renderer)
+        background[iRow][iCol].render(renderer, camera)
 
   for i in 0 ..< entities.len:
-    entities[i].renderAnimated(renderer)
+    entities[i].renderAnimated(renderer, camera)
 
   camera.track(player, 10, 0.1)
 
-  renderer.setDrawColor(0, 0, 0, 255)
-  camera.drawOutline(renderer)
-  for iRow in 0 ..< background.len:
-    for iCol in 0 ..< background[iRow].len:
-      background[iRow][iCol].getView.drawOutline(renderer)
+  # debug outlines
+#  renderer.setDrawColor(0, 0, 0, 255)
+#  camera.drawOutline(renderer)
+#  for iRow in 0 ..< background.len:
+#    for iCol in 0 ..< background[iRow].len:
+#      background[iRow][iCol].getView.drawOutline(renderer)
 
   renderer.present
   sdl2.delay(uint32(dt))

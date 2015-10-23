@@ -34,9 +34,10 @@ proc spriteSheet*(ren: sdl2.RendererPtr, file: string, w, h: int): SpriteSheet =
 proc numFrames*(sSheet: SpriteSheet): int =
   return sSheet.views.len
 
-proc render*(sSheet: SpriteSheet, ren: sdl2.RendererPtr, pos: Position) =
+proc render*(sSheet: SpriteSheet, ren: sdl2.RendererPtr, camera: View, pos: Position) =
   sSheet.sheet.render(
     ren,
+    camera,
     view(pos, sSheet.views[sSheet.currentFrame].size),
     sSheet.views[sSheet.currentFrame]
   )

@@ -47,11 +47,11 @@ proc getView*(entity: Entity): View =
 proc frameStep*(entity: var Entity) =
   entity.sprite.frameStep
 
-proc render*(entity: Entity, ren: sdl2.RendererPtr) =
-  entity.sprite.render(ren, entity.pos)
+proc render*(entity: Entity, ren: sdl2.RendererPtr, camera: View) =
+  entity.sprite.render(ren, camera, entity.pos)
 
-proc renderAnimated*(entity: var Entity, ren: sdl2.RendererPtr) =
-  entity.render(ren)
+proc renderAnimated*(entity: var Entity, ren: sdl2.RendererPtr, camera: View) =
+  entity.render(ren, camera)
   entity.currentFrameTime -= 1
   if entity.currentFrameTime <= 0:
     entity.frameStep
