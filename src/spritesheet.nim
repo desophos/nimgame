@@ -1,8 +1,6 @@
 from math import nil
 from sdl2 import nil
-import drawable
-import common_types
-import util
+import drawable, common_types, util
 
 type SpriteSheet* = object of RootObj
   views: seq[View]

@@ -1,6 +1,5 @@
 from sdl2 import nil
-import common_types
-import spritesheet
+import common_types, spritesheet
 
 type Entity* = ref object of RootObj
   sprite: SpriteSheet
