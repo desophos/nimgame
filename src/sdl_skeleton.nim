@@ -1,7 +1,5 @@
-import sdl2
-from sdl2/gfx import nil
-from sdl2/image import nil
 from math import nil
+import sdl2, sdl2/gfx, sdl2/image
 import entity, drawable, common_types, util
 
 discard sdl2.init(sdl2.INIT_EVERYTHING)
@@ -28,7 +26,7 @@ let
     [2, 3, 2],
     [3, 0, 3]
   ]
-  
+
 # create tiled background
 for iRow in 0 ..< tile_map.len:
   background.add(@[])
@@ -54,10 +52,10 @@ var
   runGame = true
   fpsman: gfx.FpsManager
 
-gfx.init(fpsman)
+fpsman.init
 
 while runGame:
-  while bool(sdl2.pollEvent(evt)):
+  while bool(evt.pollEvent):
     case evt.kind
     of sdl2.QuitEvent:
       runGame = false
@@ -79,10 +77,10 @@ while runGame:
     else:
       continue
 
-  let dt = gfx.getFramerate(fpsman) / 1000
+  let dt = fpsman.getFramerate / 1000
 
-  sdl2.setDrawColor(renderer, 255, 255, 255, 255)
-  sdl2.clear(renderer)
+  renderer.setDrawColor(255, 255, 255, 255)
+  renderer.clear
 
   # render tiles that intersect camera
   for iRow in 0 ..< background.len:
@@ -95,14 +93,14 @@ while runGame:
 
   camera.track(player, 10, 0.1)
 
-  sdl2.setDrawColor(renderer, 0, 0, 0, 255)
+  renderer.setDrawColor(0, 0, 0, 255)
   camera.drawOutline(renderer)
   for iRow in 0 ..< background.len:
     for iCol in 0 ..< background[iRow].len:
       background[iRow][iCol].getView.drawOutline(renderer)
 
-  sdl2.present(renderer)
+  renderer.present
   sdl2.delay(uint32(dt))
 
-sdl2.destroy renderer
-sdl2.destroy window
+renderer.destroy
+window.destroy
