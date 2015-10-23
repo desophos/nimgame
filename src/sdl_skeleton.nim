@@ -1,36 +1,20 @@
 from math import nil
 import sdl2, sdl2/gfx, sdl2/image
-import entity, drawable, common_types, util
+import entity, drawable, common_types, util, global
 
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
-const
-  tileSize: int = 100
-
 var
-  camera = view(0, 0, 320, 240)
+  camera = view(0, 0, cameraWidth, cameraHeight)
   window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, cint(camera.size.w), cint(camera.size.h), sdl2.SDL_WINDOW_SHOWN)
   renderer: sdl2.RendererPtr = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
   entities: seq[Entity] = @[]
   background: seq[seq[Entity]] = @[]
 
-# tiles (static background)
-let
-  tile_map = [
-    [0, 1, 0, 1, 0, 1, 0],
-    [1, 2, 1, 2, 1, 2, 1],
-    [2, 3, 2, 3, 2, 3, 2],
-    [3, 0, 3, 0, 3, 0, 3],
-    [0, 1, 0, 1, 0, 1, 0],
-    [1, 2, 1, 2, 1, 2, 1],
-    [2, 3, 2, 3, 2, 3, 2],
-    [3, 0, 3, 0, 3, 0, 3]
-  ]
-
-# create tiled background
-for iRow in 0 ..< tile_map.len:
+# create static tiled background
+for iRow in 0 ..< tileMap.len:
   background.add(@[])
-  for iCol in 0 ..< tile_map[iRow].len:
+  for iCol in 0 ..< tileMap[iRow].len:
     # create tile
     background[iRow].add(
       entity(
@@ -39,10 +23,10 @@ for iRow in 0 ..< tile_map.len:
       )
     )
     # step tile to correct frame
-    for _ in 0 ..< tile_map[iRow][iCol]:
+    for _ in 0 ..< tileMap[iRow][iCol]:
       background[iRow][iCol].frameStep
 
-# entities (dynamic foreground)
+# create entities (dynamic foreground)
 var
   player = entity(renderer, "sheet.png", view(0, 0, 100, 100))
 entities.add(player)
@@ -65,13 +49,13 @@ while runGame:
       # so we can access the fields on KeyboardEventObj
       case evt.key.keysym.sym
       of sdl2.K_LEFT:
-        player.move(Direction.left)
+        player.move(mapView, Direction.left)
       of sdl2.K_UP:
-        player.move(Direction.up)
+        player.move(mapView, Direction.up)
       of sdl2.K_DOWN:
-        player.move(Direction.down)
+        player.move(mapView, Direction.down)
       of sdl2.K_RIGHT:
-        player.move(Direction.right)
+        player.move(mapView, Direction.right)
       else:
         continue
     else:
@@ -91,7 +75,7 @@ while runGame:
   for i in 0 ..< entities.len:
     entities[i].renderAnimated(renderer, camera)
 
-  camera.track(player, 10, 0.1)
+  camera.track(mapView, player, 50, 0.1)
 
   # debug outlines
 #  renderer.setDrawColor(0, 0, 0, 255)

@@ -35,15 +35,25 @@ proc view*(x, y: int, size: Size): View =
 proc view*(pos: Position, size: Size): View =
   return View(pos: pos, size: size)
 
+proc constrainTo*(view: var View, constrain: View) =
+  if view.pos.x < constrain.pos.x:
+    view.pos.x = constrain.pos.x
+  if view.pos.y < constrain.pos.y:
+    view.pos.y = constrain.pos.y
+  if view.pos.x + view.size.w > constrain.size.w:
+    view.pos.x = constrain.size.w - view.size.w
+  if view.pos.y + view.size.h > constrain.size.h:
+    view.pos.y = constrain.size.h - view.size.h
+
 proc center*(view: View): Position =
   Position(
     x: view.pos.x + int(view.size.w / 2),
     y: view.pos.y + int(view.size.h / 2)
   )
 
-proc centerOn*(view: var View, point: Position) =
-  echo view.center, view.center-point
+proc centerOn*(view: var View, point: Position, constrain: View) =
   view.pos = view.center - point
+  view.constrainTo(constrain)
 
 proc contains*(view: View, point: Position): bool =
   return point.x > view.pos.x and

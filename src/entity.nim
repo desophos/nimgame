@@ -16,7 +16,7 @@ proc entity*(
   let sprite = spriteSheet(ren, file, view.size)
   var frameTimer: seq[int] = @[]
   # completely temporary until i decide how to specify frame times
-  for i in 0 .. sprite.numFrames:
+  for i in 0 ..< sprite.numFrames:
     frameTimer.add(60)
   return Entity(
     sprite: sprite,
@@ -44,6 +44,11 @@ proc center*(entity: Entity): Position =
 proc getView*(entity: Entity): View =
   return view(entity.pos, entity.sprite.getSize)
 
+proc constrainTo*(entity: var Entity, constrain: View) =
+  var constrainedView = entity.getView
+  constrainedView.constrainTo(constrain)
+  entity.pos = constrainedView.pos
+
 proc frameStep*(entity: var Entity) =
   entity.sprite.frameStep
 
@@ -57,7 +62,7 @@ proc renderAnimated*(entity: var Entity, ren: sdl2.RendererPtr, camera: View) =
     entity.frameStep
     entity.currentFrameTime = entity.frameTimer[entity.sprite.currentFrame]
 
-proc move*(entity: var Entity, dir: Direction, speed: int = 10) =
+proc move*(entity: var Entity, constrain: View, dir: Direction, speed: int = 10) =
   case dir
   of Direction.left:
     entity.pos.x -= speed
@@ -67,9 +72,10 @@ proc move*(entity: var Entity, dir: Direction, speed: int = 10) =
     entity.pos.y += speed
   of Direction.right:
     entity.pos.x += speed
+  entity.constrainTo(constrain)
 
 # this proc needs a real home :( please adopt
-proc track*(view: var View, entity: Entity, trackDistance: int = 0, trackSpeedMult: float = 1) =
+proc track*(view: var View, constrain: View, entity: Entity, trackDistance: int = 0, trackSpeedMult: float = 1) =
   if not (view.smaller(trackDistance).contains(entity.getView)):
     view.pos = view.pos + (entity.center - view.center) * trackSpeedMult
-
+  view.constrainTo(constrain)
