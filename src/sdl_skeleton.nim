@@ -2,9 +2,7 @@ import sdl2
 from sdl2/gfx import nil
 from sdl2/image import nil
 from math import nil
-import drawable
-import common_types
-import entity
+import entity, drawable, common_types, util
 
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
@@ -83,7 +81,7 @@ while runGame:
 
   let dt = gfx.getFramerate(fpsman) / 1000
 
-  sdl2.setDrawColor(renderer, 0, 0, 0, 255)
+  sdl2.setDrawColor(renderer, 255, 255, 255, 255)
   sdl2.clear(renderer)
 
   # render tiles that intersect camera
@@ -96,6 +94,12 @@ while runGame:
     entities[i].renderAnimated(renderer)
 
   camera.track(player, 10, 0.1)
+
+  sdl2.setDrawColor(renderer, 0, 0, 0, 255)
+  camera.drawOutline(renderer)
+  for iRow in 0 ..< background.len:
+    for iCol in 0 ..< background[iRow].len:
+      background[iRow][iCol].getView.drawOutline(renderer)
 
   sdl2.present(renderer)
   sdl2.delay(uint32(dt))

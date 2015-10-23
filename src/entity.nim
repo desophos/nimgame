@@ -70,6 +70,6 @@ proc move*(entity: var Entity, dir: Direction, speed: int = 10) =
 
 # this proc needs a real home :( please adopt
 proc track*(view: var View, entity: Entity, trackDistance: int = 0, trackSpeedMult: float = 1) =
-  if not (view.smaller(trackDistance).contains(entity.center)):
+  if not (view.smaller(trackDistance).contains(entity.getView)):
     view.pos = view.pos + (entity.center - view.center) * trackSpeedMult
 

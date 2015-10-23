@@ -15,3 +15,7 @@ proc SDLRectFromView*(view: View): sdl2.Rect =
     w = cint(view.size.w),
     h = cint(view.size.h)
   )
+
+proc drawOutline*(view: View, ren: sdl2.RendererPtr) =
+  var rect = view.SDLRectFromView
+  sdl2.drawRect(ren, rect)

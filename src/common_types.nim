@@ -77,12 +77,12 @@ proc intersects*(v1: View, v2: View): bool =
         v1.contains(
           Position(
             x: v2.pos.x + v2.size.w,
-            y: 0
+            y: v2.pos.y
           )
         ) or
         v1.contains(
           Position(
-            x: 0,
+            x: v2.pos.x,
             y: v2.pos.y + v2.size.h
           )
         )
