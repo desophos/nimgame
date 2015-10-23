@@ -29,7 +29,7 @@ for iRow in 0 ..< tileMap.len:
 
 # create entities (dynamic foreground)
 var
-  player = entity(renderer, "sheet.png")
+  player = entity(renderer, "sheet.png", true)
 entities.add(player)
 
 var
