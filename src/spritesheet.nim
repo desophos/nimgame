@@ -1,48 +1,73 @@
+import json, os
 from math import nil
 from sdl2 import nil
 import drawable, common_types, util
 
+type Frame = ref object of RootObj
+  view: View
+  name: string
+  time: int
+  resetTimer: int  # decrement by 1 on each render
+
+proc frame(view: View, name: string, time: int): Frame =
+  return Frame(
+    view: view,
+    name: name,
+    time: time,
+    resetTimer: time
+  )
+
 type SpriteSheet* = object of RootObj
-  views: seq[View]
-  frameSize: Size
   sheet: Drawable
+  frames: seq[Frame]
   currentFrame*: int
 
-proc spriteSheet*(ren: sdl2.RendererPtr, file: string, size: Size): SpriteSheet =
+proc spriteSheet*(ren: sdl2.RendererPtr, file: string): SpriteSheet =
   let
     sheet = drawable(ren, file)
-    sheetSize = sheet.getSize
-  # sprites are defined by Views into a SpriteSheet
-  # views are in reading order
-  # (in rows, left to right, top to bottom)
-  var
-    views: seq[View] = @[]
-    curX, curY: int
-  for y in 0 ..< int(math.ceil(sheetSize.h / size.h)):
-    curX = 0
-    for x in 0 ..< int(math.ceil(sheetSize.w / size.w)):
-      views.add(view(curX, curY, size.w, size.h))
-      curX += size.w
-    curY += size.h
-  return SpriteSheet(views: views, frameSize: size, sheet: sheet)
+    (_, filename, _) = splitFile(file)
+    spriteJson = parseFile(getResourceFile(filename & ".json"))
+  
+  var frames: seq[Frame] = @[]
 
-proc spriteSheet*(ren: sdl2.RendererPtr, file: string, w, h: int): SpriteSheet =
-  return spriteSheet(ren, file, Size(w: w, h: h))
+  for eachFrame in spriteJson["frames"]:
+    frames.add(
+      frame(
+        view(
+          eachFrame["pos"]["x"].getNum.int,
+          eachFrame["pos"]["y"].getNum.int,
+          eachFrame["size"]["w"].getNum.int,
+          eachFrame["size"]["h"].getNum.int
+        ),
+        eachFrame["name"].getStr,
+        eachFrame["time"].getNum.int
+      )
+    )
+
+  return SpriteSheet(sheet: sheet, frames: frames, currentFrame: 0)
 
 proc numFrames*(sSheet: SpriteSheet): int =
-  return sSheet.views.len
+  return sSheet.frames.len
 
-proc render*(sSheet: SpriteSheet, ren: sdl2.RendererPtr, camera: View, pos: Position) =
+proc frameStep(sSheet: var SpriteSheet) =
+  # increment frame and wrap to first frame if we exceed the # of frames
+  sSheet.currentFrame = (sSheet.currentFrame + 1) mod sSheet.numFrames
+
+proc animate*(sSheet: var SpriteSheet) =
+  let frame = sSheet.frames[sSheet.currentFrame]
+  frame.resetTimer -= 1
+  if frame.resetTimer <= 0:
+    sSheet.frameStep
+    frame.resetTimer = frame.time
+
+proc render*(sSheet: var SpriteSheet, ren: sdl2.RendererPtr, camera: View, pos: Position) =
+  let frame = sSheet.frames[sSheet.currentFrame]
   sSheet.sheet.render(
     ren,
     camera,
-    view(pos, sSheet.views[sSheet.currentFrame].size),
-    sSheet.views[sSheet.currentFrame]
+    view(pos, frame.view.size),
+    frame.view
   )
 
-proc frameStep*(sSheet: var SpriteSheet) =
-  # increment frame and wrap to first frame if we exceed the # of frames
-  sSheet.currentFrame = (sSheet.currentFrame + 1) mod sSheet.views.len
-
 proc getSize*(sSheet: SpriteSheet): Size =
-  return sSheet.frameSize
+  return sSheet.frames[sSheet.currentFrame].view.size

@@ -18,17 +18,18 @@ for iRow in 0 ..< tileMap.len:
     # create tile
     background[iRow].add(
       entity(
-        renderer, "sheet.png",
-        view(iCol * tileSize, iRow * tileSize, 100, 100)
+        renderer,
+        "sheet.png",
+        Position(x: iCol * tileSize, y: iRow * tileSize),
+        false
       )
     )
-    # step tile to correct frame
-    for _ in 0 ..< tileMap[iRow][iCol]:
-      background[iRow][iCol].frameStep
+    # set tile to correct frame
+    background[iRow][iCol].setFrame(tileMap[iRow][iCol])
 
 # create entities (dynamic foreground)
 var
-  player = entity(renderer, "sheet.png", view(0, 0, 100, 100))
+  player = entity(renderer, "sheet.png")
 entities.add(player)
 
 var
@@ -73,7 +74,7 @@ while runGame:
         background[iRow][iCol].render(renderer, camera)
 
   for i in 0 ..< entities.len:
-    entities[i].renderAnimated(renderer, camera)
+    entities[i].render(renderer, camera)
 
   camera.track(mapView, player, 50, 0.1)
 
