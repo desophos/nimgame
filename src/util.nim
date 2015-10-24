@@ -3,10 +3,7 @@ from sdl2 import nil
 import common_types
 
 proc getResourceFile*(file: string): string =
-  let
-    srcDir = os.getCurrentDir()
-    resDir = "res"
-  return os.joinPath(os.parentDir(srcDir), resDir, file)
+  return os.joinPath(os.parentDir(os.getAppDir()), "res", file)
 
 proc SDLRectFromView*(view: View): sdl2.Rect =
   return sdl2.rect(
