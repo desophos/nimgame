@@ -18,16 +18,16 @@ proc frame(view: View, name: string, time: int): Frame =
   )
 
 type SpriteSheet* = object of RootObj
-  sheet: Drawable
+  tex: Drawable
   frames: seq[Frame]
   currentFrame*: int
 
 proc spriteSheet*(ren: sdl2.RendererPtr, file: string): SpriteSheet =
   let
-    sheet = drawable(ren, file)
+    tex = drawable(ren, file)
     (_, filename, _) = splitFile(file)
     spriteJson = parseFile(getResourceFile(filename & ".json"))
-  
+
   var frames: seq[Frame] = @[]
 
   for eachFrame in spriteJson["frames"]:
@@ -44,7 +44,7 @@ proc spriteSheet*(ren: sdl2.RendererPtr, file: string): SpriteSheet =
       )
     )
 
-  return SpriteSheet(sheet: sheet, frames: frames, currentFrame: 0)
+  return SpriteSheet(tex: tex, frames: frames, currentFrame: 0)
 
 proc numFrames*(sSheet: SpriteSheet): int =
   return sSheet.frames.len
@@ -62,7 +62,7 @@ proc animate*(sSheet: var SpriteSheet) =
 
 proc render*(sSheet: var SpriteSheet, ren: sdl2.RendererPtr, camera: View, pos: Position) =
   let frame = sSheet.frames[sSheet.currentFrame]
-  sSheet.sheet.render(
+  sSheet.tex.render(
     ren,
     camera,
     view(pos, frame.view.size),

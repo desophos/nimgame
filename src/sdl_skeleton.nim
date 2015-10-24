@@ -1,6 +1,6 @@
 from math import nil
 import sdl2, sdl2/gfx, sdl2/image
-import entity, drawable, common_types, util, global
+import sprite, drawable, common_types, util, global
 
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
@@ -8,8 +8,8 @@ var
   camera = view(0, 0, cameraWidth, cameraHeight)
   window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, cint(camera.size.w), cint(camera.size.h), sdl2.SDL_WINDOW_SHOWN)
   renderer: sdl2.RendererPtr = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
-  entities: seq[Entity] = @[]
-  background: seq[seq[Entity]] = @[]
+  entities: seq[Sprite] = @[]
+  background: seq[seq[Sprite]] = @[]
 
 # create static tiled background
 for iRow in 0 ..< tileMap.len:
@@ -17,7 +17,7 @@ for iRow in 0 ..< tileMap.len:
   for iCol in 0 ..< tileMap[iRow].len:
     # create tile
     background[iRow].add(
-      entity(
+      sprite(
         renderer,
         "sheet.png",
         Position(x: iCol * tileSize, y: iRow * tileSize),
@@ -29,7 +29,7 @@ for iRow in 0 ..< tileMap.len:
 
 # create entities (dynamic foreground)
 var
-  player = entity(renderer, "sheet.png", true)
+  player = sprite(renderer, "sheet.png", true)
 entities.add(player)
 
 var
@@ -76,7 +76,7 @@ while runGame:
   for i in 0 ..< entities.len:
     entities[i].render(renderer, camera)
 
-  camera.track(mapView, player, 50, 0.1)
+  camera.track(mapView, player, 30, 0.1)
 
   # debug outlines
 #  renderer.setDrawColor(0, 0, 0, 255)
