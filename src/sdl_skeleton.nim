@@ -25,7 +25,7 @@ for iRow in 0 ..< tileMap.len:
       )
     )
     # set tile to correct frame
-    background[iRow][iCol].setFrame(tileMap[iRow][iCol])
+    background[iRow][iCol].currentFrame = tileMap[iRow][iCol]
 
 # create entities (dynamic foreground)
 var
