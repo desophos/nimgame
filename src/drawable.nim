@@ -5,7 +5,7 @@ import common_types, util
 type Drawable* = object of RootObj
   texture: sdl2.TexturePtr
 
-proc drawable*(ren: sdl2.RendererPtr, file: string): Drawable =
+proc initDrawable*(ren: sdl2.RendererPtr, file: string): Drawable =
   return Drawable(texture: image.loadTexture(ren, getResourceFile(file)))
 
 proc destroy*(drawable: Drawable) =
@@ -26,12 +26,12 @@ proc render*(drawable: Drawable, ren: sdl2.RendererPtr, camera: View, dstView: V
   ren.copy(drawable.texture, nil, addr(dst))
 
 proc render*(drawable: Drawable, ren: sdl2.RendererPtr, camera: View, x, y, w, h: int) =
-  drawable.render(ren, camera, view(x, y, w, h))
+  drawable.render(ren, camera, newView(x, y, w, h))
 
 proc render*(drawable: Drawable, ren: sdl2.RendererPtr, camera: View, pos: Position) =
   var w, h: cint
   drawable.texture.queryTexture(nil, nil, addr(w), addr(h))
-  drawable.render(ren, camera, view(pos, int(w), int(h)))
+  drawable.render(ren, camera, newView(pos, int(w), int(h)))
 
 proc render*(drawable: Drawable, ren: sdl2.RendererPtr, camera: View, x, y: int) =
   drawable.render(ren, camera, Position(x: x, y: y))

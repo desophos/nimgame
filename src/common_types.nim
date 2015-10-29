@@ -1,18 +1,26 @@
-import math
+import tables
+import sdl2
+import math, basic2d
 
 type
   Position* = object
     x*, y*: int
   Size* = object
     w*, h*: int
-  View* = object
+  View* = ref object
     pos*: Position
     size*: Size
   Direction* = enum
-    left, up, down, right
+    left, up, down, right, idle
+
+proc initPosition*(vec: TVector2d): Position =
+  return Position(x: int(vec.x), y: int(vec.y))
 
 proc `+`*(p1: Position, p2: Position): Position =
   return Position(x: p1.x + p2.x, y: p1.y + p2.y)
+
+proc `+=`*(p1: var Position, p2: Position): Position =
+  p1 = p1 + p2
 
 proc `-`*(p1: Position, p2: Position): Position =
   return Position(x: p1.x - p2.x, y: p1.y - p2.y)
@@ -23,16 +31,16 @@ proc `*`*(pos: Position, mult: float): Position =
 proc distanceFrom*(p1: Position, p2: Position): float =
   return math.sqrt(float((p2.x - p1.x)^2 + (p2.y - p1.y)^2))
 
-proc view*(x, y, w, h: int): View =
+proc newView*(x, y, w, h: int): View =
   return View(pos: Position(x: x, y: y), size: Size(w: w, h: h))
 
-proc view*(pos: Position, w, h: int): View =
+proc newView*(pos: Position, w, h: int): View =
   return View(pos: pos, size: Size(w: w, h: h))
 
-proc view*(x, y: int, size: Size): View =
+proc newView*(x, y: int, size: Size): View =
   return View(pos: Position(x: x, y: y), size: size)
 
-proc view*(pos: Position, size: Size): View =
+proc newView*(pos: Position, size: Size): View =
   return View(pos: pos, size: size)
 
 proc constrainTo*(view: var View, constrain: View) =
@@ -98,7 +106,7 @@ proc intersects*(v1: View, v2: View): bool =
         )
 
 proc smaller*(view: View, distance: int): View =
-  return view(
+  return newView(
     view.pos.x + distance,
     view.pos.y + distance,
     view.size.w - distance*2,

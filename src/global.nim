@@ -1,6 +1,9 @@
+import tables
+import sdl2
 import common_types
 
 const
+  noneEvent* = Event(kind: UserEvent)
   cameraWidth* = 320
   cameraHeight* = 240
   tileMap* = [
@@ -14,4 +17,9 @@ const
     [3, 0, 3, 0, 3, 0, 3]
   ]
   tileSize* = 100
-  mapView* = view(0, 0, tileMap[0].len * tileSize, tileMap.len * tileSize)
+  directionMap* = toTable[cint, Direction]([
+    (K_LEFT, Direction.left),
+    (K_UP, Direction.up),
+    (K_DOWN, Direction.down),
+    (K_RIGHT, Direction.right)
+  ])

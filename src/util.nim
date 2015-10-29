@@ -1,4 +1,4 @@
-import os
+import future, os
 from sdl2 import nil
 import common_types
 
@@ -16,3 +16,9 @@ proc SDLRectFromView*(view: View): sdl2.Rect =
 proc drawOutline*(view: View, ren: sdl2.RendererPtr) =
   var rect = view.SDLRectFromView
   sdl2.drawRect(ren, rect)
+
+iterator takeWhile*[T](s: seq[T], pred: T -> bool): seq[T] =
+  for i in 0 ..< s.len:
+    if not pred(s[i]):
+      break
+    yield s[i]
