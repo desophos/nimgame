@@ -1,4 +1,4 @@
-import future, os
+import future, os, tables
 from sdl2 import nil
 import common_types
 
@@ -22,3 +22,11 @@ iterator takeWhile*[T](s: seq[T], pred: T -> bool): seq[T] =
     if not pred(s[i]):
       break
     yield s[i]
+
+proc filterTableByKey*[T, S](t: Table[T, S], pred: T -> bool): Table[T, S] =
+  #return lc[(k, v) | (k <- t.keys, v <- t.values, pred(k)), seq[(T, S)]].toTable
+  var s: seq[(T, S)] = @[]
+  for k, v in t.pairs:
+    if pred(k):
+      s.add((k, v))
+  return s.toTable

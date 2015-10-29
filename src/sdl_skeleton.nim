@@ -1,6 +1,6 @@
 from math import nil
 import sdl2, sdl2/gfx, sdl2/image
-import events, entity, physics, sprite, drawable, controller, common_types, util, global
+import events, entity, physics, sprite, controller, job, drawable, common_types, util, global
 
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
@@ -41,15 +41,20 @@ for iRow in 0 ..< tileMap.len:
 let
   playerSprite = newSprite(
     renderer,
-    "sheet.png"
+    "sheet.png",
+    true
   )
   playerBody = newPhysicsBody(
     newView(0, 0, playerSprite.getSize()),
     true
   )
 var
-  player = newEntity(playerSprite, playerBody, InputController())
-entityManager.addEntity(physicsManager, player)
+  player = newCharacter(
+    newEntity(playerSprite, playerBody, InputController()),
+    renderer,
+    Jobs.Mage
+  )
+entityManager.addEntity(physicsManager, player.entity)
 
 var
   runGame = true
@@ -75,6 +80,8 @@ while runGame:
     break
   elif nextEvent.kind == UserEvent:
     discard gEventQueue.getEvent()
+  elif nextEvent.kind == MouseButtonDown:
+    entityManager.addEntity(physicsManager, player.useSkill("fireball"))
 
   let dt = fpsman.getFramerate / 1000
 
@@ -84,7 +91,7 @@ while runGame:
   entityManager.update(gEventQueue)
   physicsManager.update()
 
-  camera.track(mapView, player.getBody(), 30, 0.1)
+  camera.track(mapView, player.entity.getBody(), 30, 0.1)
 
   renderer.present
 

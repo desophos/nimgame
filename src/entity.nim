@@ -9,11 +9,6 @@ type
     sprite: Sprite
     physics: PhysicsBody
     controller: Controller
-#  EntityTemplate* = ref object of RootObj
-#    # an Entity whose fields are closures
-#    sprite: void -> Sprite
-#    physics: void -> PhysicsBody
-#    controller: void -> Controller
   EntityManager = ref object of RootObj
     entities: seq[Entity]
     renderer: RendererPtr
@@ -29,24 +24,6 @@ proc newEntity*(
     physics: physics,
     controller: controller
   )
-
-#proc entityTemplate*(
-#  sprite: void -> Sprite,
-#  physics: void -> PhysicsBody,
-#  controller: void -> Controller
-#): EntityTemplate =
-#  return EntityTemplate(
-#    sprite: sprite,
-#    physics: physics,
-#    controller: controller
-#  )
-#
-#proc generate*(generator: EntityTemplate): Entity =
-#  return Entity(
-#    sprite: generator.sprite(),
-#    physics: generator.physics(),
-#    controller: generator.controller()
-#  )
 
 proc newEntityManager*(
   renderer: RendererPtr,
