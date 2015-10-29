@@ -46,7 +46,8 @@ let
   )
   playerBody = newPhysicsBody(
     newView(0, 0, playerSprite.getSize()),
-    true
+    collidable = true,
+    friction = 0.9
   )
 var
   player = newCharacter(

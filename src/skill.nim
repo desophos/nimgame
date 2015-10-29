@@ -1,4 +1,4 @@
-import future, tables
+import future, tables, basic2d
 import sdl2
 import entity, sprite, physics, controller, common_types
 
@@ -9,8 +9,7 @@ type
     proficiency: int
     case action*: SkillAction
     of Projectile:
-      speed: int
-      entityGenerator*: View -> Entity
+      entityGenerator*: Entity -> Entity
 
 # will probably eventually have to refactor this
 # to support different renderers
@@ -22,20 +21,23 @@ proc allSkills*(ren: RendererPtr): Table[string, Skill] =
   return toTable({
     "fireball": Skill(
       action: Projectile,
-      speed: 50,
-      entityGenerator: proc(view: View): Entity =
+      entityGenerator: proc(user: Entity): Entity =
+        var initialVelocity = user.getBody.velocity
+        discard initialVelocity.tryNormalize
+        initialVelocity *= 20
         var events: array[PhysicsEvent, seq[(PhysicsBody, PhysicsBody) -> void]]
         events[PhysicsEvent.onCollision] = @[
           proc(body: PhysicsBody, other: PhysicsBody) {.closure.} =
             # explode on nearby characters
-            # need to implement collision physics :(
-            echo repr(other)
+            if other != user.getBody():
+              body.active = false
         ]
         return newEntity(
           sprite = newSprite(ren, "sheet.png", true),
           physics = newPhysicsBody(
-            rect = newView(view.pos, 50, 50),
+            rect = newView(user.getBody.rect.pos, 50, 50),
             collidable = true,
+            velocity = initialVelocity,
             events = events
           ),
           controller = NoneController()

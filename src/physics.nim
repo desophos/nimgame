@@ -6,7 +6,8 @@ type
     onCollision
   PhysicsBody* = ref object of RootObj
     rect*: View
-    velocity: TVector2d
+    velocity*: TVector2d
+    friction: float
     active*: bool
     collidable: bool
     events: array[PhysicsEvent, seq[(PhysicsBody, PhysicsBody) -> void]]
@@ -32,11 +33,14 @@ proc newPhysicsBody*(
   rect: View,
   collidable: bool,
   active: bool = true,
+  friction: float = 1.0,
+  velocity: Vector2d = vector2d(0, 0),
   events: array[PhysicsEvent, seq[(PhysicsBody, PhysicsBody) -> void]] = initEvents()
 ): PhysicsBody =
   return PhysicsBody(
     rect: rect,
-    velocity: vector2d(0, 0),
+    velocity: velocity,
+    friction: friction,
     collidable: collidable,
     active: active,
     events: events
@@ -50,6 +54,12 @@ proc `pos=`*(body: PhysicsBody, pos: Position) =
 
 proc `pos=`*(body: PhysicsBody, x, y: int) =
   body.rect.pos = Position(x: x, y: y)
+
+proc applyForceScalar*(body: PhysicsBody, force: float) =
+  body.velocity *= force
+
+proc applyForceVector*(body: PhysicsBody, force: Vector2d) =
+  body.velocity += force
 
 proc constrainTo*(body: PhysicsBody, constrain: View) =
   var constrainedView = body.rect
@@ -68,27 +78,28 @@ proc move*(body: PhysicsBody, dir: Direction, accel: float = 5) =
     body.velocity += XAXIS * accel
   else:
     discard
-  body.rect.pos = body.rect.pos + initPosition(body.velocity)
 
 proc update*(manager: PhysicsManager) =
   # ultra simple collision checker
   # only checks single collision
   # doesn't remove events
   for i in 0 ..< manager.bodies.len:
-    if manager.bodies[i].active:
-      #echo repr(manager.bodies[i])
-      manager.bodies[i].velocity.scale(manager.friction)
-      manager.bodies[i].constrainTo(manager.bounds)
-      if manager.bodies[i].collidable:
+    var body = manager.bodies[i]
+    if body.active:
+      body.velocity.scale(body.friction)
+      body.rect.pos += initPosition(body.velocity)
+      body.constrainTo(manager.bounds)
+      if body.collidable:
         for j in 0 ..< manager.bodies.len:
-          if manager.bodies[j].collidable and
-             addr(manager.bodies[j]) != addr(manager.bodies[i]) and
-             manager.bodies[j].rect.intersects(manager.bodies[i].rect):
-            for event in manager.bodies[i].events[onCollision]:
-              if not manager.bodies[i].collidable or
-                 not manager.bodies[j].collidable:
+          var other = manager.bodies[j]
+          if other.collidable and
+             addr(other) != addr(body) and
+             other.rect.intersects(body.rect):
+            for event in body.events[onCollision]:
+              if not body.collidable or
+                 not other.collidable:
                 break
-              event(manager.bodies[i], manager.bodies[j])
+              event(body, other)
 
 # this proc needs a real home :( please adopt
 proc track*(view: var View, constrain: View, body: PhysicsBody, trackDistance: int = 0, trackSpeedMult: float = 1) =

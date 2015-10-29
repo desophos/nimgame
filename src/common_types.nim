@@ -19,7 +19,7 @@ proc initPosition*(vec: TVector2d): Position =
 proc `+`*(p1: Position, p2: Position): Position =
   return Position(x: p1.x + p2.x, y: p1.y + p2.y)
 
-proc `+=`*(p1: var Position, p2: Position): Position =
+proc `+=`*(p1: var Position, p2: Position) =
   p1 = p1 + p2
 
 proc `-`*(p1: Position, p2: Position): Position =

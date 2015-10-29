@@ -43,8 +43,8 @@ proc newCharacter*(
     job: allJobs(ren)[job]
   )
 
-method useSkill*(user: Character, skillName: string): Entity =
+proc useSkill*(user: Character, skillName: string): Entity =
   let skill = user.job.skills[skillName]
   case skill.action:
   of Projectile:
-    result = skill.entityGenerator(user.entity.getBody.rect)
+    result = skill.entityGenerator(user.entity)
