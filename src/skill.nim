@@ -33,7 +33,7 @@ proc allSkills*(ren: RendererPtr): Table[string, Skill] =
               body.active = false
         ]
         return newEntity(
-          sprite = newSprite(ren, "sheet.png", true),
+          sprite = newSprite(ren, "fireball.png", true),
           physics = newPhysicsBody(
             rect = newView(user.getBody.rect.pos, 50, 50),
             collidable = true,
