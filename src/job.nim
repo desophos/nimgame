@@ -1,6 +1,6 @@
 import future, tables, sequtils
 import sdl2
-import entity, sprite, physics, controller, skill, common_types, util
+import entity, sprite, screen, physics, controller, skill, common_types, util
 
 type
   Jobs* = enum
@@ -15,8 +15,8 @@ type
     energy: int
     job: Job
 
-proc allJobs*(ren: RendererPtr): Table[Jobs, Job] =
-  let allSkills = allSkills(ren)
+proc allJobs*(screen: Screen): Table[Jobs, Job] =
+  let allSkills = allSkills(screen)
   return toTable({
     Fighter: Job(
       name: "Fighter",
@@ -33,14 +33,14 @@ proc allJobs*(ren: RendererPtr): Table[Jobs, Job] =
 
 proc newCharacter*(
   entity: Entity,
-  ren: RendererPtr,
+  screen: Screen,
   job: Jobs
 ): Character =
   return Character(
     entity: entity,
     life: 100,
     energy: 100,
-    job: allJobs(ren)[job]
+    job: allJobs(screen)[job]
   )
 
 proc useSkill*(user: Character, skillName: string): Entity =

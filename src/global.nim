@@ -4,8 +4,7 @@ import common_types
 
 const
   noneEvent* = Event(kind: UserEvent)
-  cameraWidth* = 320
-  cameraHeight* = 240
+  cameraSize* = Size(w: 320, h: 240)
   tileMap* = [
     [0, 1, 0, 1, 0, 1, 0],
     [1, 2, 1, 2, 1, 2, 1],

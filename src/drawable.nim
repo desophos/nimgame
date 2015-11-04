@@ -11,30 +11,26 @@ proc initDrawable*(ren: sdl2.RendererPtr, file: string): Drawable =
 proc destroy*(drawable: Drawable) =
   drawable.texture.destroy
 
-proc render*(drawable: Drawable, ren: sdl2.RendererPtr, camera: View, dstView: View, srcView: View) =
+proc render*(drawable: Drawable, ren: sdl2.RendererPtr, dstView: View, srcView: View) =
   var
     src = SDLRectFromView(srcView)
     dst = SDLRectFromView(dstView)
-  dst.x -= cint(camera.pos.x)
-  dst.y -= cint(camera.pos.y)
   ren.copy(drawable.texture, addr(src), addr(dst))
 
-proc render*(drawable: Drawable, ren: sdl2.RendererPtr, camera: View, dstView: View) =
+proc render*(drawable: Drawable, ren: sdl2.RendererPtr, dstView: View) =
   var dst = SDLRectFromView(dstView)
-  dst.x -= cint(camera.pos.x)
-  dst.y -= cint(camera.pos.y)
   ren.copy(drawable.texture, nil, addr(dst))
 
-proc render*(drawable: Drawable, ren: sdl2.RendererPtr, camera: View, x, y, w, h: int) =
-  drawable.render(ren, camera, newView(x, y, w, h))
+proc render*(drawable: Drawable, ren: sdl2.RendererPtr, x, y, w, h: int) =
+  drawable.render(ren, newView(x, y, w, h))
 
-proc render*(drawable: Drawable, ren: sdl2.RendererPtr, camera: View, pos: Position) =
+proc render*(drawable: Drawable, ren: sdl2.RendererPtr, pos: Position) =
   var w, h: cint
   drawable.texture.queryTexture(nil, nil, addr(w), addr(h))
-  drawable.render(ren, camera, newView(pos, int(w), int(h)))
+  drawable.render(ren, newView(pos, int(w), int(h)))
 
-proc render*(drawable: Drawable, ren: sdl2.RendererPtr, camera: View, x, y: int) =
-  drawable.render(ren, camera, Position(x: x, y: y))
+proc render*(drawable: Drawable, ren: sdl2.RendererPtr, x, y: int) =
+  drawable.render(ren, Position(x: x, y: y))
 
 proc getSize*(drawable: Drawable): Size =
   var w, h: cint

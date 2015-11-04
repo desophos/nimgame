@@ -1,6 +1,6 @@
-import future
+import future, basic2d
 import sdl2
-import events, sprite, physics, controller, common_types
+import events, sprite, screen, physics, controller, common_types
 
 type
   Entity* = ref object of RootObj
@@ -11,8 +11,8 @@ type
     controller: Controller
   EntityManager = ref object of RootObj
     entities: seq[Entity]
-    renderer: RendererPtr
-    camera: View
+    physicsManager: PhysicsManager
+    screen: Screen
 
 proc newEntity*(
   sprite: Sprite,
@@ -25,29 +25,34 @@ proc newEntity*(
     controller: controller
   )
 
-proc newEntityManager*(
-  renderer: RendererPtr,
-  camera: View
-): EntityManager =
+proc newEntityManager*(): EntityManager =
   return EntityManager(
-    entities: @[],
-    renderer: renderer,
-    camera: camera
+    entities: @[]
   )
 
 proc getBody*(entity: Entity): PhysicsBody =
   return entity.physics
 
-proc addEntity*(manager: EntityManager, physicsManager: PhysicsManager, entity: Entity) =
+proc getSprite*(entity: Entity): Sprite =
+  return entity.sprite
+
+proc addEntity*(manager: EntityManager, physicsManager: PhysicsManager, screen: Screen, entity: Entity) =
   manager.entities.add(entity)
   physicsManager.addBody(entity.physics)
+  screen.addSprite(entity.sprite)
 
-proc update(entity: Entity, eventQueue: EventHandler, ren: RendererPtr, camera: View) =
-  if entity.physics.active:
+proc update(entity: Entity, eventQueue: EventHandler, physicsManager: PhysicsManager) =
+  # update world position and screen position
+  let body = entity.physics
+  if body.active:
+    let initialPos = body.rect.pos
     for direction in entity.controller.chooseDirection(eventQueue):
-      entity.physics.move(direction)
-  entity.sprite.render(ren, entity.physics.rect.pos, camera)
+      body.move(direction)
+    body.velocity.scale(body.friction)
+    body.rect.pos += initPosition(body.velocity)
+    body.constrainTo(physicsManager.bounds)
+    entity.sprite.screenPos += body.rect.pos - initialPos
 
-proc update*(manager: EntityManager, eventQueue: EventHandler) =
+proc update*(manager: EntityManager, eventQueue: EventHandler, physicsManager: PhysicsManager) =
   for entity in manager.entities:
-    entity.update(eventQueue, manager.renderer, manager.camera)
+    entity.update(eventQueue, physicsManager)

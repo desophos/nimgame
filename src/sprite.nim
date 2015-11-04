@@ -16,13 +16,28 @@ proc newFrame(view: View, name: string, time: int): Frame =
     resetTimer: time
   )
 
-type Sprite* = ref object of RootObj
-  tex: Drawable
-  frames: seq[Frame]
-  currentFrame*: int
-  animated: bool
+type
+  ZIndex* = enum
+    Background, Foreground
+  Sprite* = ref object of RootObj
+    tex: Drawable
+    zIndex*: ZIndex
+    screenPos*: Position
+    frames: seq[Frame]
+    currentFrame*: int
+    animated: bool
 
-proc newSprite*(ren: sdl2.RendererPtr, file: string, animated: bool = false, startingFrame: int = 0): Sprite =
+proc destroy*(sprite: Sprite) =
+  sprite.tex.destroy
+
+proc newSprite*(
+  ren: sdl2.RendererPtr,
+  zIndex: ZIndex,
+  file: string,
+  animated: bool = false,
+  startingFrame: int = 0,
+  screenPos: Position = Position(x: 0, y: 0)
+): Sprite =
   let
     tex = initDrawable(ren, file)
     (_, filename, _) = splitFile(file)
@@ -44,21 +59,23 @@ proc newSprite*(ren: sdl2.RendererPtr, file: string, animated: bool = false, sta
       )
     )
 
-  return Sprite(tex: tex, frames: frames, currentFrame: startingFrame, animated: animated)
+  return Sprite(
+    tex: tex, zIndex: zIndex, screenPos: screenPos,
+    frames: frames, currentFrame: startingFrame, animated: animated
+  )
 
 proc getSize*(sprite: Sprite): Size =
   return sprite.frames[sprite.currentFrame].view.size
 
-proc frameStep(sprite: var Sprite) =
+proc frameStep(sprite: Sprite) =
   # increment frame and wrap to first frame if we exceed the # of frames
   sprite.currentFrame = (sprite.currentFrame + 1) mod sprite.frames.len
 
-proc render*(sprite: var Sprite, ren: sdl2.RendererPtr, pos: Position, camera: View) =
+proc render*(sprite: Sprite, ren: sdl2.RendererPtr) =
   let frame = sprite.frames[sprite.currentFrame]
   sprite.tex.render(
     ren,
-    camera,
-    newView(pos, frame.view.size),
+    newView(sprite.screenPos, frame.view.size),
     frame.view
   )
 

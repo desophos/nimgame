@@ -7,14 +7,14 @@ type
   PhysicsBody* = ref object of RootObj
     rect*: View
     velocity*: TVector2d
-    friction: float
+    friction*: float
     active*: bool
     collidable: bool
     events: array[PhysicsEvent, seq[(PhysicsBody, PhysicsBody) -> void]]
   PhysicsManager* = ref object of RootObj
     bodies: seq[PhysicsBody]
-    bounds: View
-    friction: float
+    bounds*: View
+    friction*: float
 
 proc newPhysicsManager*(
   bounds: View,
@@ -79,16 +79,13 @@ proc move*(body: PhysicsBody, dir: Direction, accel: float = 5) =
   else:
     discard
 
-proc update*(manager: PhysicsManager) =
-  # ultra simple collision checker
-  # only checks single collision
-  # doesn't remove events
+proc step*(manager: PhysicsManager) =
   for i in 0 ..< manager.bodies.len:
     var body = manager.bodies[i]
     if body.active:
-      body.velocity.scale(body.friction)
-      body.rect.pos += initPosition(body.velocity)
-      body.constrainTo(manager.bounds)
+      # ultra simple collision checker
+      # only checks single collision
+      # doesn't remove events
       if body.collidable:
         for j in 0 ..< manager.bodies.len:
           var other = manager.bodies[j]
@@ -100,9 +97,3 @@ proc update*(manager: PhysicsManager) =
                  not other.collidable:
                 break
               event(body, other)
-
-# this proc needs a real home :( please adopt
-proc track*(view: var View, constrain: View, body: PhysicsBody, trackDistance: int = 0, trackSpeedMult: float = 1) =
-  if not (view.smaller(trackDistance).contains(body.rect)):
-    view.pos = view.pos + (body.rect.center - view.center) * trackSpeedMult
-  view.constrainTo(constrain)

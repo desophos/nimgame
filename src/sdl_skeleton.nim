@@ -1,16 +1,17 @@
-from math import nil
 import sdl2, sdl2/gfx, sdl2/image
-import events, entity, physics, sprite, controller, job, drawable, common_types, util, global
+import events, entity, physics, sprite, screen, controller, job, drawable, common_types, util, global
 
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
 var
   gEventQueue = newEventHandler()
   mapView = newView(0, 0, tileMap[0].len * tileSize, tileMap.len * tileSize)
-  camera = newView(0, 0, cameraWidth, cameraHeight)
-  window: sdl2.WindowPtr = sdl2.createWindow("SDL Skeleton", 100, 100, cint(camera.size.w), cint(camera.size.h), sdl2.SDL_WINDOW_SHOWN)
-  renderer: sdl2.RendererPtr = sdl2.createRenderer(window, -1, sdl2.Renderer_Accelerated or sdl2.Renderer_PresentVsync or sdl2.Renderer_TargetTexture)
-  entityManager = newEntityManager(renderer, camera)
+  mainScreen = newScreen(
+    cameraSize = cameraSize,
+    windowName = "SDL Skeleton",
+    windowPos = Position(x: 100, y: 100)
+  )
+  entityManager = newEntityManager()
   physicsManager = newPhysicsManager(mapView)
 
 # create static tiled background
@@ -19,9 +20,12 @@ for iRow in 0 ..< tileMap.len:
     # create tile
     let
       tileSprite = newSprite(
-        renderer,
-        "sheet.png",
-        startingFrame = tileMap[iRow][iCol]
+        ren = mainScreen.renderer,
+        zIndex = ZIndex.Background,
+        file = "sheet.png",
+        animated = false,
+        startingFrame = tileMap[iRow][iCol],
+        screenPos = Position(x: iCol * tileSize, y: iRow * tileSize)
       )
       tileBody = newPhysicsBody(
         newView(iCol * tileSize, iRow * tileSize, tileSprite.getSize()),
@@ -30,6 +34,7 @@ for iRow in 0 ..< tileMap.len:
       )
     entityManager.addEntity(
       physicsManager,
+      mainScreen,
       newEntity(
         tileSprite,
         tileBody,
@@ -40,9 +45,10 @@ for iRow in 0 ..< tileMap.len:
 # create entities (dynamic foreground)
 let
   playerSprite = newSprite(
-    renderer,
-    "sheet.png",
-    true
+    ren = mainScreen.renderer,
+    zIndex = ZIndex.Foreground,
+    file = "sheet.png",
+    animated = true
   )
   playerBody = newPhysicsBody(
     newView(0, 0, playerSprite.getSize()),
@@ -52,10 +58,10 @@ let
 var
   player = newCharacter(
     newEntity(playerSprite, playerBody, InputController()),
-    renderer,
+    mainScreen,
     Jobs.Mage
   )
-entityManager.addEntity(physicsManager, player.entity)
+entityManager.addEntity(physicsManager, mainScreen, player.entity)
 
 var
   runGame = true
@@ -74,7 +80,6 @@ while runGame:
   sdl2.pumpEvents()
 
   var nextEvent = gEventQueue.peekEvent()
-  echo repr(nextEvent.kind)
   if nextEvent.kind == QuitEvent:
     discard gEventQueue.getEvent()
     runGame = false
@@ -82,19 +87,15 @@ while runGame:
   elif nextEvent.kind == UserEvent:
     discard gEventQueue.getEvent()
   elif nextEvent.kind == MouseButtonDown:
-    entityManager.addEntity(physicsManager, player.useSkill("fireball"))
+    entityManager.addEntity(physicsManager, mainScreen, player.useSkill("fireball"))
 
   let dt = fpsman.getFramerate / 1000
 
-  renderer.setDrawColor(255, 255, 255, 255)
-  renderer.clear
+  entityManager.update(gEventQueue, physicsManager)
+  physicsManager.step
 
-  entityManager.update(gEventQueue)
-  physicsManager.update()
-
-  camera.track(mapView, player.entity.getBody(), 30, 0.1)
-
-  renderer.present
+  mainScreen.track(mapView, player.entity.getBody(), 30, 0.1)
+  mainScreen.render
 
   # flush SDL2 queue, we don't care about it at all
   sdl2.flushEvents(0, 0x99999)
@@ -105,5 +106,4 @@ while runGame:
 
   sdl2.delay(uint32(dt))
 
-renderer.destroy
-window.destroy
+mainScreen.destroy
