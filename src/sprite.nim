@@ -18,6 +18,7 @@ type
     screenPos*: Position
     frames: seq[Frame]
     currentFrame*: int
+    nextFrame*: int
     animatedBy*: AnimatedBy
 
 proc newFrame(view: View, name: string, time: int): Frame =
@@ -47,13 +48,14 @@ proc newSprite*(
   var frames: seq[Frame] = @[]
 
   for eachFrame in spriteJson["frames"]:
+    let size = if spriteJson.hasKey("size"): spriteJson["size"] else: eachFrame["size"]
     frames.add(
       newFrame(
         newView(
           eachFrame["pos"]["x"].getNum.int,
           eachFrame["pos"]["y"].getNum.int,
-          eachFrame["size"]["w"].getNum.int,
-          eachFrame["size"]["h"].getNum.int
+          size["w"].getNum.int,
+          size["h"].getNum.int
         ),
         eachFrame["name"].getStr,
         eachFrame["time"].getNum.int
@@ -68,9 +70,11 @@ proc newSprite*(
 proc getSize*(sprite: Sprite): Size =
   return sprite.frames[sprite.currentFrame].view.size
 
-proc frameStep(sprite: Sprite) =
+proc frameStep*(sprite: Sprite) =
   # increment frame and wrap to first frame if we exceed the # of frames
-  sprite.currentFrame = (sprite.currentFrame + 1) mod sprite.frames.len
+  let frame = sprite.frames[sprite.currentFrame]
+  sprite.currentFrame = sprite.nextFrame
+  sprite.nextFrame = (sprite.currentFrame + 1) mod sprite.frames.len
 
 proc animate*(sprite: Sprite) =
   let frame = sprite.frames[sprite.currentFrame]

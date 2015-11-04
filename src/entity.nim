@@ -52,9 +52,13 @@ proc update(entity: Entity, eventQueue: EventHandler, physicsManager: PhysicsMan
     body.rect.pos += initPosition(body.velocity)
     body.constrainTo(physicsManager.bounds)
     entity.sprite.screenPos += body.rect.pos - initialPos
-    if body.rect.pos.distanceFrom(initialPos).abs > 0 and
-       entity.getSprite.animatedBy == AnimatedBy.Movement:
-      entity.sprite.animate
+    # animate or change to idle frame if not moving
+    if entity.getSprite.animatedBy == AnimatedBy.Movement:
+      if body.rect.pos.distanceFrom(initialPos).abs > 0:
+        entity.sprite.animate
+      else:
+        entity.sprite.nextFrame = 0  # assume 0 is the idle frame
+        entity.sprite.animate
 
 proc update*(manager: EntityManager, eventQueue: EventHandler, physicsManager: PhysicsManager) =
   for entity in manager.entities:
