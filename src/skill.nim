@@ -30,7 +30,7 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
           float(int(mouseY) - user.getSprite.screenPos.y)
         )
         discard initialVelocity.tryNormalize
-        initialVelocity *= 20
+        initialVelocity *= 10
         # set up collision event
         var events: array[PhysicsEvent, seq[(PhysicsBody, PhysicsBody) -> void]]
         events[PhysicsEvent.onCollision] = @[

@@ -1,42 +1,42 @@
 {
     "size": {
-        "w": 64,
-        "h": 64
+        "w": 100,
+        "h": 100
     },
     "frames": {
         "idle": [
             {
-                "name": "0",
-                "time": 5,
+                "name": "green",
+                "time": 20,
                 "pos": {
                     "x": 0,
                     "y": 0
                 }
             },
             {
-                "name": "1",
-                "time": 5,
+                "name": "blue",
+                "time": 20,
                 "pos": {
-                    "x": 64,
+                    "x": 100,
                     "y": 0
                 }
             },
             {
-                "name": "2",
-                "time": 5,
+                "name": "red",
+                "time": 20,
                 "pos": {
-                    "x": 128,
-                    "y": 0
+                    "x": 0,
+                    "y": 100
                 }
             },
             {
-                "name": "3",
-                "time": 5,
+                "name": "yellow",
+                "time": 20,
                 "pos": {
-                    "x": 192,
-                    "y": 0
+                    "x": 100,
+                    "y": 100
                 }
             }
         ]
     }
-}
+}0

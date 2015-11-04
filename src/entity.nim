@@ -55,9 +55,12 @@ proc update(entity: Entity, eventQueue: EventHandler, physicsManager: PhysicsMan
     # animate or change to idle frame if not moving
     if entity.getSprite.animatedBy == AnimatedBy.Movement:
       if body.rect.pos.distanceFrom(initialPos).abs > 0:
+        if entity.sprite.currentState != AnimationState.Move:
+          entity.sprite.switchState(AnimationState.Move)
         entity.sprite.animate
       else:
-        entity.sprite.nextFrame = 0  # assume 0 is the idle frame
+        if entity.sprite.currentState != AnimationState.Idle:
+          entity.sprite.switchState(AnimationState.Idle)
         entity.sprite.animate
 
 proc update*(manager: EntityManager, eventQueue: EventHandler, physicsManager: PhysicsManager) =
