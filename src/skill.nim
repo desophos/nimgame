@@ -45,7 +45,7 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
             ren = screen.renderer,
             zIndex = ZIndex.Foreground,
             file = "fireball.png",
-            animated = true,
+            animatedBy = AnimatedBy.Time,
             screenPos = user.getSprite.screenPos
           ),
           physics = newPhysicsBody(

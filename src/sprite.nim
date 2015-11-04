@@ -2,11 +2,23 @@ import os, json
 from sdl2 import nil
 import drawable, common_types, util
 
-type Frame = ref object of RootObj
-  view: View
-  name: string
-  time: int
-  resetTimer: int  # decrement by 1 on each render
+type
+  AnimatedBy* {.pure.} = enum
+    Time, Movement, None
+  ZIndex* = enum
+    Background, Foreground
+  Frame = ref object of RootObj
+    view: View
+    name: string
+    time: int
+    resetTimer: int  # decrement by 1 on each render
+  Sprite* = ref object of RootObj
+    tex: Drawable
+    zIndex*: ZIndex
+    screenPos*: Position
+    frames: seq[Frame]
+    currentFrame*: int
+    animatedBy*: AnimatedBy
 
 proc newFrame(view: View, name: string, time: int): Frame =
   return Frame(
@@ -16,17 +28,6 @@ proc newFrame(view: View, name: string, time: int): Frame =
     resetTimer: time
   )
 
-type
-  ZIndex* = enum
-    Background, Foreground
-  Sprite* = ref object of RootObj
-    tex: Drawable
-    zIndex*: ZIndex
-    screenPos*: Position
-    frames: seq[Frame]
-    currentFrame*: int
-    animated: bool
-
 proc destroy*(sprite: Sprite) =
   sprite.tex.destroy
 
@@ -34,7 +35,7 @@ proc newSprite*(
   ren: sdl2.RendererPtr,
   zIndex: ZIndex,
   file: string,
-  animated: bool = false,
+  animatedBy: AnimatedBy = AnimatedBy.None,
   startingFrame: int = 0,
   screenPos: Position = Position(x: 0, y: 0)
 ): Sprite =
@@ -61,7 +62,7 @@ proc newSprite*(
 
   return Sprite(
     tex: tex, zIndex: zIndex, screenPos: screenPos,
-    frames: frames, currentFrame: startingFrame, animated: animated
+    frames: frames, currentFrame: startingFrame, animatedBy: animatedBy
   )
 
 proc getSize*(sprite: Sprite): Size =
@@ -71,6 +72,13 @@ proc frameStep(sprite: Sprite) =
   # increment frame and wrap to first frame if we exceed the # of frames
   sprite.currentFrame = (sprite.currentFrame + 1) mod sprite.frames.len
 
+proc animate*(sprite: Sprite) =
+  let frame = sprite.frames[sprite.currentFrame]
+  frame.resetTimer -= 1
+  if frame.resetTimer <= 0:
+    sprite.frameStep
+    frame.resetTimer = frame.time
+
 proc render*(sprite: Sprite, ren: sdl2.RendererPtr) =
   let frame = sprite.frames[sprite.currentFrame]
   sprite.tex.render(
@@ -79,8 +87,5 @@ proc render*(sprite: Sprite, ren: sdl2.RendererPtr) =
     frame.view
   )
 
-  if sprite.animated:
-    frame.resetTimer -= 1
-    if frame.resetTimer <= 0:
-      sprite.frameStep
-      frame.resetTimer = frame.time
+  if sprite.animatedBy == AnimatedBy.Time:
+    sprite.animate

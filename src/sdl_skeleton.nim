@@ -23,7 +23,7 @@ for iRow in 0 ..< tileMap.len:
         ren = mainScreen.renderer,
         zIndex = ZIndex.Background,
         file = "sheet.png",
-        animated = false,
+        animatedBy = AnimatedBy.None,
         startingFrame = tileMap[iRow][iCol],
         screenPos = Position(x: iCol * tileSize, y: iRow * tileSize)
       )
@@ -48,7 +48,7 @@ let
     ren = mainScreen.renderer,
     zIndex = ZIndex.Foreground,
     file = "sheet.png",
-    animated = true
+    animatedBy = AnimatedBy.Movement
   )
   playerBody = newPhysicsBody(
     newView(0, 0, playerSprite.getSize()),
