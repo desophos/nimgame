@@ -83,6 +83,7 @@ proc contains*(v1: View, v2: View): bool =
 
 proc intersects*(v1: View, v2: View): bool =
   # any corner
+  # check both ways in case one completely contains the other
   return v1.contains(
           v2.pos
         ) or
@@ -102,6 +103,27 @@ proc intersects*(v1: View, v2: View): bool =
           Position(
             x: v2.pos.x,
             y: v2.pos.y + v2.size.h
+          )
+        ) or
+        v2.contains(
+          v1.pos
+        ) or
+        v2.contains(
+          Position(
+            x: v1.pos.x + v1.size.w,
+            y: v1.pos.y + v1.size.h
+          )
+        ) or
+        v2.contains(
+          Position(
+            x: v1.pos.x + v1.size.w,
+            y: v1.pos.y
+          )
+        ) or
+        v2.contains(
+          Position(
+            x: v1.pos.x,
+            y: v1.pos.y + v1.size.h
           )
         )
 
