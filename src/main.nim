@@ -1,7 +1,9 @@
-import sequtils
+import future, sequtils, basic2d
+from math import random, randomize
 import sdl2, sdl2/gfx, sdl2/image
 import events, entity, physics, sprite, screen, controller, job, drawable, common_types, util, global
 
+randomize()  # init random
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
 var
@@ -23,15 +25,15 @@ for iRow in 0 ..< tileMap.len:
       tileSprite = newSprite(
         ren = mainScreen.renderer,
         zIndex = ZIndex.Background,
-        file = "grass.png",
-        animatedBy = AnimatedBy.None,
+        image = "forest.png",
+        json = "forest_grass",
         startingFrame = tileMap[iRow][iCol],
         screenPos = Position(x: iCol * tileSize, y: iRow * tileSize)
       )
       tileBody = newPhysicsBody(
-        newView(iCol * tileSize, iRow * tileSize, tileSprite.getSize()),
-        false,
-        false
+        newView(tileSprite.screenPos, tileSprite.getSize()),
+        collidable = false,
+        active = false
       )
     entityManager.addEntity(
       physicsManager,
@@ -43,12 +45,68 @@ for iRow in 0 ..< tileMap.len:
       )
     )
 
+var stationaryCollisionEvents: array[PhysicsEvent, seq[(PhysicsBody, PhysicsBody) -> void]]
+stationaryCollisionEvents[PhysicsEvent.onCollision] = @[
+  proc(body: PhysicsBody, other: PhysicsBody) {.closure.} =
+    # stop collided entity from moving
+    other.velocity = vector2d(0, 0)
+]
+
+# make some happy little trees
+let numTrees = 6
+for i in 0 ..< numTrees:
+  var
+    treeSprite = newSprite(
+      ren = mainScreen.renderer,
+      zIndex = ZIndex.Foreground,
+      image = "forest.png",
+      json = "forest_tree",
+      screenPos = Position(
+        x: random(mapView.size.w),
+        y: random(mapView.size.h)
+      )
+    )
+    treeBody = newPhysicsBody(
+      newView(
+        treeSprite.screenPos,
+        treeSprite.getSize()
+      ),
+      collidable = true,
+      events = stationaryCollisionEvents
+    )
+
+  # make sure tree doesn't collide with any other entity
+  while entityManager.entities.any(
+    proc(entity: Entity): bool =
+      return entity.sprite.zIndex == ZIndex.Foreground and
+             entity.body.rect.intersects(treeBody.rect)
+  ):
+    treeSprite.screenPos = Position(
+      x: random(mapView.size.w.float).int,
+      y: random(mapView.size.h.float).int
+    )
+    treeBody.rect = newView(
+      treeSprite.screenPos,
+      treeSprite.getSize()
+    )
+
+  entityManager.addEntity(
+    physicsManager,
+    mainScreen,
+    newEntity(
+      treeSprite,
+      treeBody,
+      NoneController()
+    )
+  )
+
+
 # create entities
 let
   playerSprite = newSprite(
     ren = mainScreen.renderer,
     zIndex = ZIndex.Foreground,
-    file = "shepherd.png",
+    image = "shepherd.png",
     animatedBy = AnimatedBy.Movement
   )
   playerBody = newPhysicsBody(

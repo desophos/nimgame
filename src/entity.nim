@@ -10,7 +10,7 @@ type
     body*: PhysicsBody
     controller*: Controller
   EntityManager = ref object of RootObj
-    entities: seq[Entity]
+    entities*: seq[Entity]
 
 proc newEntity*(
   sprite: Sprite,

@@ -37,14 +37,15 @@ proc destroy*(sprite: Sprite) =
 proc newSprite*(
   ren: sdl2.RendererPtr,
   zIndex: ZIndex,
-  file: string,
+  image: string,
+  json: string = "",
   animatedBy: AnimatedBy = AnimatedBy.None,
   startingFrame: int = 0,
   screenPos: Position = Position(x: 0, y: 0)
 ): Sprite =
   let
-    tex = initDrawable(ren, file)
-    (_, filename, _) = splitFile(file)
+    tex = initDrawable(ren, image)
+    filename = if json.len > 0: json else: splitFile(image)[1]
     spriteJson = parseFile(getResourceFile(filename & ".json"))
 
   var states: array[AnimationState, seq[Frame]]
