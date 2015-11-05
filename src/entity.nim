@@ -11,8 +11,6 @@ type
     controller*: Controller
   EntityManager = ref object of RootObj
     entities: seq[Entity]
-    physicsManager: PhysicsManager
-    screen: Screen
 
 proc newEntity*(
   sprite: Sprite,
