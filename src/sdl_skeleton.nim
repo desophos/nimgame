@@ -10,7 +10,7 @@ var
   mainScreen = newScreen(
     cameraSize = cameraSize,
     windowName = "SDL Skeleton",
-    windowPos = Position(x: 100, y: 100)
+    windowPos = Position(x: 200, y: 200)
   )
   entityManager = newEntityManager()
   physicsManager = newPhysicsManager(mapView)
@@ -23,7 +23,7 @@ for iRow in 0 ..< tileMap.len:
       tileSprite = newSprite(
         ren = mainScreen.renderer,
         zIndex = ZIndex.Background,
-        file = "tile.png",
+        file = "grass.png",
         animatedBy = AnimatedBy.None,
         startingFrame = tileMap[iRow][iCol],
         screenPos = Position(x: iCol * tileSize, y: iRow * tileSize)
@@ -54,7 +54,7 @@ let
   playerBody = newPhysicsBody(
     newView(0, 0, playerSprite.getSize()),
     collidable = true,
-    friction = 0.9
+    friction = 0.8
   )
 var
   player = newCharacter(

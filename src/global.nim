@@ -5,17 +5,21 @@ import common_types
 const
   noneEvent* = Event(kind: UserEvent)
   cameraSize* = Size(w: 320, h: 240)
+#  tileMap* = [
+#    [0, 1, 0, 1, 0, 1, 0],
+#    [1, 2, 1, 2, 1, 2, 1],
+#    [2, 3, 2, 3, 2, 3, 2],
+#    [3, 0, 3, 0, 3, 0, 3],
+#    [0, 1, 0, 1, 0, 1, 0],
+#    [1, 2, 1, 2, 1, 2, 1],
+#    [2, 3, 2, 3, 2, 3, 2],
+#    [3, 0, 3, 0, 3, 0, 3]
+#  ]
   tileMap* = [
-    [0, 1, 0, 1, 0, 1, 0],
-    [1, 2, 1, 2, 1, 2, 1],
-    [2, 3, 2, 3, 2, 3, 2],
-    [3, 0, 3, 0, 3, 0, 3],
-    [0, 1, 0, 1, 0, 1, 0],
-    [1, 2, 1, 2, 1, 2, 1],
-    [2, 3, 2, 3, 2, 3, 2],
-    [3, 0, 3, 0, 3, 0, 3]
+    [0, 0],
+    [0, 0]
   ]
-  tileSize* = 100
+  tileSize* = 512
   directionMap* = toTable[cint, Direction]([
     (K_LEFT, Direction.left),
     (K_UP, Direction.up),
