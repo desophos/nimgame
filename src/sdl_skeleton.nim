@@ -9,13 +9,13 @@ var
   mapView = newView(0, 0, tileMap[0].len * tileSize, tileMap.len * tileSize)
   mainScreen = newScreen(
     cameraSize = cameraSize,
-    windowName = "SDL Skeleton",
+    windowName = "Main Window",
     windowPos = Position(x: 200, y: 200)
   )
   entityManager = newEntityManager()
   physicsManager = newPhysicsManager(mapView)
 
-# create static tiled background
+# create tiled background
 for iRow in 0 ..< tileMap.len:
   for iCol in 0 ..< tileMap[iRow].len:
     # create tile
@@ -43,7 +43,7 @@ for iRow in 0 ..< tileMap.len:
       )
     )
 
-# create entities (dynamic foreground)
+# create entities
 let
   playerSprite = newSprite(
     ren = mainScreen.renderer,
@@ -56,19 +56,19 @@ let
     collidable = true,
     friction = 0.8
   )
-var
   player = newCharacter(
     newEntity(playerSprite, playerBody, InputController()),
     mainScreen,
     Jobs.Mage
   )
+
 entityManager.addEntity(physicsManager, mainScreen, player.entity)
 
 var
   runGame = true
-  fpsman: gfx.FpsManager
+  fpsManager: gfx.FpsManager
 
-fpsman.init
+fpsManager.init
 
 # just make SDL2 add its events to our event queue
 sdl2.addEventWatch(
@@ -79,8 +79,11 @@ sdl2.addEventWatch(
 )
 
 while runGame:
+  # pump all events that have passed since the last invocation
+  # through the SDL2 event pipeline into our gEventQueue
   sdl2.pumpEvents()
 
+  # main event handling loop
   while gEventQueue.hasEvents:
     let nextEvent = gEventQueue.peekEvent()
     case nextEvent.kind
@@ -107,10 +110,8 @@ while runGame:
           directions
         else:
           @[Direction.idle]
-    else:  # including UserEvent
+    else:  # including UserEvent (noneEvent)
       discard gEventQueue.getEvent()
-
-  let dt = fpsman.getFramerate / 1000
 
   entityManager.update(gEventQueue, physicsManager, mainScreen)
   physicsManager.step
@@ -121,6 +122,7 @@ while runGame:
   # flush SDL2 queue, we don't care about it at all
   sdl2.flushEvents(0, 0x99999)
 
+  let dt = fpsManager.getFramerate / 1000
   sdl2.delay(uint32(dt))
 
 mainScreen.destroy
