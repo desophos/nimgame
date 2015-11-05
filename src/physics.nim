@@ -9,6 +9,7 @@ type
     velocity*: TVector2d
     friction*: float
     active*: bool
+    toDestroy*: bool
     collidable: bool
     events: array[PhysicsEvent, seq[(PhysicsBody, PhysicsBody) -> void]]
   PhysicsManager* = ref object of RootObj
@@ -43,11 +44,15 @@ proc newPhysicsBody*(
     friction: friction,
     collidable: collidable,
     active: active,
+    toDestroy: false,
     events: events
   )
 
 proc addBody*(manager: PhysicsManager, body: PhysicsBody) =
   manager.bodies.add(body)
+
+proc removeBody*(manager: PhysicsManager, body: PhysicsBody) =
+  manager.bodies.del(manager.bodies.find(body))
 
 proc `pos=`*(body: PhysicsBody, pos: Position) =
   body.rect.pos = pos

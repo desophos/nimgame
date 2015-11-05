@@ -33,6 +33,10 @@ proc destroy*(screen: Screen) =
 proc addSprite*(screen: Screen, sprite: Sprite) =
   screen.sprites.add(sprite)
 
+proc removeSprite*(screen: Screen, sprite: Sprite) =
+  screen.sprites.del(screen.sprites.find(sprite))
+  sprite.destroy
+
 proc render*(screen: Screen) =
   screen.sprites.sort((sprite1, sprite2) => (sprite1.zIndex > sprite2.zIndex))
   screen.renderer.setDrawColor(255, 255, 255, 255)

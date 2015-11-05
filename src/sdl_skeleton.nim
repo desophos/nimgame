@@ -94,6 +94,7 @@ while runGame:
     of KeyDown:
       # we only care about direction keys for now
       if not nextEvent.isValidDirectionKey:
+        discard gEventQueue.getEvent()
         continue
       # get all directions in queue
       let directions = map(
@@ -111,7 +112,7 @@ while runGame:
 
   let dt = fpsman.getFramerate / 1000
 
-  entityManager.update(gEventQueue, physicsManager)
+  entityManager.update(gEventQueue, physicsManager, mainScreen)
   physicsManager.step
 
   mainScreen.track(mapView, player.entity.body, 30, 0.1)

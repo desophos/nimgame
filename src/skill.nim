@@ -38,6 +38,9 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
             # explode on nearby characters
             if other != user.body:
               body.active = false
+              body.toDestroy = true
+              other.active = false
+              other.toDestroy = true
         ]
         # build the actual entity to be returned
         return newEntity(
