@@ -6,9 +6,9 @@ type
   Entity* = ref object of RootObj
     # basically just a base type
     # that bundles a bunch of common systems
-    sprite: Sprite
-    physics: PhysicsBody
-    controller: Controller
+    sprite*: Sprite
+    body*: PhysicsBody
+    controller*: Controller
   EntityManager = ref object of RootObj
     entities: seq[Entity]
     physicsManager: PhysicsManager
@@ -16,12 +16,12 @@ type
 
 proc newEntity*(
   sprite: Sprite,
-  physics: PhysicsBody,
+  body: PhysicsBody,
   controller: Controller
 ): Entity =
   return Entity(
     sprite: sprite,
-    physics: physics,
+    body: body,
     controller: controller
   )
 
@@ -30,30 +30,24 @@ proc newEntityManager*(): EntityManager =
     entities: @[]
   )
 
-proc getBody*(entity: Entity): PhysicsBody =
-  return entity.physics
-
-proc getSprite*(entity: Entity): Sprite =
-  return entity.sprite
-
 proc addEntity*(manager: EntityManager, physicsManager: PhysicsManager, screen: Screen, entity: Entity) =
   manager.entities.add(entity)
-  physicsManager.addBody(entity.physics)
+  physicsManager.addBody(entity.body)
   screen.addSprite(entity.sprite)
 
 proc update(entity: Entity, eventQueue: EventHandler, physicsManager: PhysicsManager) =
   # update world position and screen position
-  let body = entity.physics
+  let body = entity.body
   if body.active:
     let initialPos = body.rect.pos
-    for direction in entity.controller.chooseDirection(eventQueue):
+    for direction in entity.controller.chooseDirection():
       body.move(direction)
     body.velocity.scale(body.friction)
     body.rect.pos += initPosition(body.velocity)
     body.constrainTo(physicsManager.bounds)
     entity.sprite.screenPos += body.rect.pos - initialPos
     # animate or change to idle frame if not moving
-    if entity.getSprite.animatedBy == AnimatedBy.Movement:
+    if entity.sprite.animatedBy == AnimatedBy.Movement:
       if body.rect.pos.distanceFrom(initialPos).abs > 0:
         if entity.sprite.currentState != AnimationState.Move:
           entity.sprite.switchState(AnimationState.Move)

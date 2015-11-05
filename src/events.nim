@@ -27,6 +27,8 @@ proc isValidDirectionKey*(evt: Event): bool {.procvar.} =
   return directionMap.hasKey(evt.key.keysym.sym)
 
 proc eventToDirection*(evt: Event): Direction {.procvar.} =
+  # key is an accessor that casts an event to KeyboardEventPtr
+  # so we can access the fields on KeyboardEventObj
   var evt = evt
   return directionMap[evt.key.keysym.sym]
 

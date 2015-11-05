@@ -26,8 +26,8 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
         getMouseState(mouseX, mouseY)
         # initial velocity is 20 magnitude in the direction of the mouse from the player
         var initialVelocity = vector2d(
-          float(int(mouseX) - user.getSprite.screenPos.x),
-          float(int(mouseY) - user.getSprite.screenPos.y)
+          float(int(mouseX) - user.sprite.screenPos.x),
+          float(int(mouseY) - user.sprite.screenPos.y)
         )
         discard initialVelocity.tryNormalize
         initialVelocity *= 10
@@ -36,7 +36,7 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
         events[PhysicsEvent.onCollision] = @[
           proc(body: PhysicsBody, other: PhysicsBody) {.closure.} =
             # explode on nearby characters
-            if other != user.getBody():
+            if other != user.body:
               body.active = false
         ]
         # build the actual entity to be returned
@@ -46,10 +46,10 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
             zIndex = ZIndex.Foreground,
             file = "fireball.png",
             animatedBy = AnimatedBy.Time,
-            screenPos = user.getSprite.screenPos
+            screenPos = user.sprite.screenPos
           ),
-          physics = newPhysicsBody(
-            rect = newView(user.getBody.rect.pos, 50, 50),
+          body = newPhysicsBody(
+            rect = newView(user.body.rect.pos, 50, 50),
             collidable = true,
             velocity = initialVelocity,
             events = events

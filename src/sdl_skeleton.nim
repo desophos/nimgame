@@ -1,3 +1,4 @@
+import sequtils
 import sdl2, sdl2/gfx, sdl2/image
 import events, entity, physics, sprite, screen, controller, job, drawable, common_types, util, global
 
@@ -69,6 +70,7 @@ var
 
 fpsman.init
 
+# just make SDL2 add its events to our event queue
 sdl2.addEventWatch(
   proc(userdata: pointer, event: ptr Event): Bool32 {.cdecl.} =
     gEventQueue.addEvent(event[])
@@ -79,30 +81,44 @@ sdl2.addEventWatch(
 while runGame:
   sdl2.pumpEvents()
 
-  var nextEvent = gEventQueue.peekEvent()
-  if nextEvent.kind == QuitEvent:
-    discard gEventQueue.getEvent()
-    runGame = false
-    break
-  elif nextEvent.kind == UserEvent:
-    discard gEventQueue.getEvent()
-  elif nextEvent.kind == MouseButtonDown:
-    entityManager.addEntity(physicsManager, mainScreen, player.useSkill("fireball"))
+  while gEventQueue.hasEvents:
+    let nextEvent = gEventQueue.peekEvent()
+    case nextEvent.kind
+    of QuitEvent:
+      discard gEventQueue.getEvent()
+      runGame = false
+      break
+    of MouseButtonDown:
+      discard gEventQueue.getEvent()
+      entityManager.addEntity(physicsManager, mainScreen, player.useSkill("fireball"))
+    of KeyDown:
+      # we only care about direction keys for now
+      if not nextEvent.isValidDirectionKey:
+        continue
+      # get all directions in queue
+      let directions = map(
+        toSeq(gEventQueue.takeEventsWithKindWhile(KeyDown, isValidDirectionKey)),
+        eventToDirection
+      )
+      # give directions to player
+      player.entity.controller.directionQueue =
+        if directions.len > 0:
+          directions
+        else:
+          @[Direction.idle]
+    else:  # including UserEvent
+      discard gEventQueue.getEvent()
 
   let dt = fpsman.getFramerate / 1000
 
   entityManager.update(gEventQueue, physicsManager)
   physicsManager.step
 
-  mainScreen.track(mapView, player.entity.getBody(), 30, 0.1)
+  mainScreen.track(mapView, player.entity.body, 30, 0.1)
   mainScreen.render
 
   # flush SDL2 queue, we don't care about it at all
   sdl2.flushEvents(0, 0x99999)
-
-  # TEMPORARILY discard all other events
-  while gEventQueue.hasEvents:
-    discard gEventQueue.getEvent
 
   sdl2.delay(uint32(dt))
 
