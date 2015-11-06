@@ -13,7 +13,7 @@ type
   Direction* = enum
     left, up, down, right, idle
 
-proc initPosition*(vec: TVector2d): Position =
+proc initPosition*(vec: Vector2d): Position =
   return Position(x: int(vec.x), y: int(vec.y))
 
 proc `+`*(p1: Position, p2: Position): Position =

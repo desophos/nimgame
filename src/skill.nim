@@ -49,7 +49,8 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
             zIndex = ZIndex.Foreground,
             image = "fireball.png",
             animatedBy = AnimatedBy.Time,
-            screenPos = user.sprite.screenPos
+            screenPos = user.sprite.screenPos,
+            states = loadSpriteDataFromJsonFile("fireball")
           ),
           body = newPhysicsBody(
             rect = newView(user.body.rect.pos, 50, 50),

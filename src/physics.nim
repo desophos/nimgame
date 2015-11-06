@@ -6,7 +6,7 @@ type
     onCollision
   PhysicsBody* = ref object of RootObj
     rect*: View
-    velocity*: TVector2d
+    velocity*: Vector2d
     friction*: float
     active*: bool
     toDestroy*: bool

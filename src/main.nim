@@ -1,10 +1,12 @@
-import future, sequtils, basic2d
+import future, sequtils, basic2d, tables
 from math import random, randomize
 import sdl2, sdl2/gfx, sdl2/image
 import events, entity, physics, sprite, screen, controller, job, drawable, common_types, util, global
 
 randomize()  # init random
 discard sdl2.init(sdl2.INIT_EVERYTHING)
+
+let spritesData = loadSpriteData(["forest_grass", "forest_tree", "shepherd"])
 
 var
   gEventQueue = newEventHandler()
@@ -26,9 +28,9 @@ for iRow in 0 ..< tileMap.len:
         ren = mainScreen.renderer,
         zIndex = ZIndex.Background,
         image = "forest.png",
-        json = "forest_grass",
         startingFrame = tileMap[iRow][iCol],
-        screenPos = Position(x: iCol * tileSize, y: iRow * tileSize)
+        screenPos = Position(x: iCol * tileSize, y: iRow * tileSize),
+        states = spritesData["forest_grass"]
       )
       tileBody = newPhysicsBody(
         newView(tileSprite.screenPos, tileSprite.getSize()),
@@ -60,11 +62,11 @@ for i in 0 ..< numTrees:
       ren = mainScreen.renderer,
       zIndex = ZIndex.Foreground,
       image = "forest.png",
-      json = "forest_tree",
       screenPos = Position(
         x: random(mapView.size.w),
         y: random(mapView.size.h)
-      )
+      ),
+      states = spritesData["forest_tree"]
     )
     treeBody = newPhysicsBody(
       newView(
@@ -107,7 +109,8 @@ let
     ren = mainScreen.renderer,
     zIndex = ZIndex.Foreground,
     image = "shepherd.png",
-    animatedBy = AnimatedBy.Movement
+    animatedBy = AnimatedBy.Movement,
+    states = spritesData["shepherd"]
   )
   playerBody = newPhysicsBody(
     newView(0, 0, playerSprite.getSize()),

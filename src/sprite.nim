@@ -1,4 +1,4 @@
-import os, json
+import os, tables, json
 from sdl2 import nil
 import drawable, common_types, util
 
@@ -38,46 +38,19 @@ proc newSprite*(
   ren: sdl2.RendererPtr,
   zIndex: ZIndex,
   image: string,
-  json: string = "",
   animatedBy: AnimatedBy = AnimatedBy.None,
   startingFrame: int = 0,
-  screenPos: Position = Position(x: 0, y: 0)
+  screenPos: Position = Position(x: 0, y: 0),
+  states: array[AnimationState, seq[Frame]],
 ): Sprite =
-  let
-    tex = initDrawable(ren, image)
-    filename = if json.len > 0: json else: splitFile(image)[1]
-    spriteJson = parseFile(getResourceFile(filename & ".json"))
-
-  var states: array[AnimationState, seq[Frame]]
-
-  for eachState in spriteJson["frames"].getFields:
-    var frames: seq[Frame] = @[]
-    for eachFrame in eachState.val:
-      let size = if spriteJson.hasKey("size"): spriteJson["size"] else: eachFrame["size"]
-      frames.add(
-        newFrame(
-          newView(
-            eachFrame["pos"]["x"].getNum.int,
-            eachFrame["pos"]["y"].getNum.int,
-            size["w"].getNum.int,
-            size["h"].getNum.int
-          ),
-          eachFrame["name"].getStr,
-          eachFrame["time"].getNum.int
-        )
-      )
-    case eachState.key
-    of "idle":
-      states[AnimationState.Idle] = frames
-    of "move":
-      states[AnimationState.Move] = frames
-    else:
-      discard
-
   return Sprite(
-    tex: tex, zIndex: zIndex, screenPos: screenPos,
-    states: states, currentState: AnimationState.Idle,
-    currentFrame: startingFrame, animatedBy: animatedBy
+    tex: initDrawable(ren, image),
+    zIndex: zIndex,
+    screenPos: screenPos,
+    states: states,
+    currentState: AnimationState.Idle,
+    currentFrame: startingFrame,
+    animatedBy: animatedBy
   )
 
 proc getSize*(sprite: Sprite): Size =
@@ -108,3 +81,37 @@ proc render*(sprite: Sprite, ren: sdl2.RendererPtr) =
 
   if sprite.animatedBy == AnimatedBy.Time:
     sprite.animate
+
+proc loadSpriteDataFromJsonFile*(jsonFilename: string): array[AnimationState, seq[Frame]] =
+  let spriteJson = parseFile(getResourceFile(jsonFilename & ".json"))
+
+  for eachState in spriteJson["frames"].getFields:
+    var frames: seq[Frame] = @[]
+    for eachFrame in eachState.val:
+      let size = if spriteJson.hasKey("size"): spriteJson["size"] else: eachFrame["size"]
+      frames.add(
+        newFrame(
+          newView(
+            eachFrame["pos"]["x"].getNum.int,
+            eachFrame["pos"]["y"].getNum.int,
+            size["w"].getNum.int,
+            size["h"].getNum.int
+          ),
+          eachFrame["name"].getStr,
+          eachFrame["time"].getNum.int
+        )
+      )
+    case eachState.key
+    of "idle":
+      result[AnimationState.Idle] = frames
+    of "move":
+      result[AnimationState.Move] = frames
+    else:
+      discard
+
+proc loadSpriteData*(jsonFilenames: openarray[string]): Table[string, array[AnimationState, seq[Frame]]] =
+  result = initTable[string, array[AnimationState, seq[Frame]]](
+    rightSize(jsonFilenames.len)
+  )
+  for filename in jsonFilenames:
+    result[filename] = loadSpriteDataFromJsonFile(filename)
