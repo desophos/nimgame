@@ -22,9 +22,9 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
     "fireball": Skill(
       action: Projectile,
       entityGenerator: proc(user: Entity): Entity =
+        # initial velocity is 10 magnitude in the direction of the mouse from the player
         var mouseX, mouseY: cint
         getMouseState(mouseX, mouseY)
-        # initial velocity is 20 magnitude in the direction of the mouse from the player
         var initialVelocity = vector2d(
           float(int(mouseX) - user.sprite.screenPos.x),
           float(int(mouseY) - user.sprite.screenPos.y)
@@ -35,7 +35,8 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
         var events: array[PhysicsEvent, seq[(PhysicsBody, PhysicsBody) -> void]]
         events[PhysicsEvent.onCollision] = @[
           proc(body: PhysicsBody, other: PhysicsBody) {.closure.} =
-            # explode on nearby characters
+            # explode on nearby entities (yet to be implemented)
+            # for now just destroy collided entity
             if other != user.body:
               body.active = false
               body.toDestroy = true
