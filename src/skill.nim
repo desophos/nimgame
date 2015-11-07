@@ -26,8 +26,8 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
         var mouseX, mouseY: cint
         getMouseState(mouseX, mouseY)
         var initialVelocity = vector2d(
-          float(int(mouseX) - user.sprite.screenPos.x),
-          float(int(mouseY) - user.sprite.screenPos.y)
+          float(int(mouseX) - (user.sprite.screenPos.x + int(user.sprite.getSize.w / 2))),
+          float(int(mouseY) - (user.sprite.screenPos.y + int(user.sprite.getSize.h / 2)))
         )
         discard initialVelocity.tryNormalize
         initialVelocity *= 10
@@ -44,7 +44,7 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
               other.toDestroy = true
         ]
         # build the actual entity to be returned
-        return newEntity(
+        let
           sprite = newSprite(
             ren = screen.renderer,
             zIndex = ZIndex.Foreground,
@@ -52,13 +52,16 @@ proc allSkills*(screen: Screen): Table[string, Skill] =
             animatedBy = AnimatedBy.Time,
             screenPos = user.sprite.screenPos,
             states = loadSpriteDataFromJsonFile("fireball")
-          ),
+          )
           body = newPhysicsBody(
-            rect = newView(user.body.rect.pos, 50, 50),
+            rect = newView(user.body.rect.pos, sprite.getSize()),
             collidable = true,
             velocity = initialVelocity,
             events = events
-          ),
+          )
+        return newEntity(
+          sprite = sprite,
+          body = body,
           controller = NoneController()
         )
     )
