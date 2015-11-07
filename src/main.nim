@@ -6,8 +6,6 @@ import events, entity, physics, sprite, screen, controller, job, drawable, commo
 randomize()  # init random
 discard sdl2.init(sdl2.INIT_EVERYTHING)
 
-let spritesData = loadSpriteData(["forest_grass", "forest_tree", "shepherd"])
-
 var
   gEventQueue = newEventHandler()
   mapView = newView(0, 0, tileMap[0].len * tileSize, tileMap.len * tileSize)
@@ -19,6 +17,11 @@ var
   entityManager = newEntityManager()
   physicsManager = newPhysicsManager(mapView)
 
+for filename in ["forest.png", "shepherd.png", "fireball.png"]:
+  mainScreen.addTexture(filename)
+
+let spritesData = loadSpriteData(["forest_grass", "forest_tree", "shepherd"])
+
 # create tiled background
 for iRow in 0 ..< tileMap.len:
   for iCol in 0 ..< tileMap[iRow].len:
@@ -27,7 +30,7 @@ for iRow in 0 ..< tileMap.len:
       tileSprite = newSprite(
         ren = mainScreen.renderer,
         zIndex = ZIndex.Background,
-        image = "forest.png",
+        tex = mainScreen.textures["forest.png"],
         startingFrame = tileMap[iRow][iCol],
         screenPos = Position(x: iCol * tileSize, y: iRow * tileSize),
         states = spritesData["forest_grass"]
@@ -61,7 +64,7 @@ for i in 0 ..< numTrees:
     treeSprite = newSprite(
       ren = mainScreen.renderer,
       zIndex = ZIndex.Foreground,
-      image = "forest.png",
+      tex = mainScreen.textures["forest.png"],
       screenPos = Position(
         x: random(mapView.size.w),
         y: random(mapView.size.h)
@@ -108,7 +111,7 @@ let
   playerSprite = newSprite(
     ren = mainScreen.renderer,
     zIndex = ZIndex.Foreground,
-    image = "shepherd.png",
+    tex = mainScreen.textures["shepherd.png"],
     animatedBy = AnimatedBy.Movement,
     states = spritesData["shepherd"]
   )

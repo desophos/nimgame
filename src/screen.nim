@@ -1,12 +1,13 @@
-import algorithm, future
+import algorithm, future, tables
 import sdl2
-import sprite, physics, common_types
+import drawable, sprite, physics, common_types
 
 type Screen* = ref object of RootObj
   camera: View
   window: WindowPtr
   renderer*: RendererPtr
   sprites: seq[Sprite]
+  textures*: Table[string, Drawable]
 
 proc newScreen*(
   cameraSize: Size,
@@ -21,14 +22,20 @@ proc newScreen*(
     camera: camera,
     window: window,
     renderer: renderer,
-    sprites: @[]
+    sprites: @[],
+    textures: initTable[string, Drawable]()
   )
 
 proc destroy*(screen: Screen) =
   for i in 0 ..< screen.sprites.len:
     screen.sprites[i].destroy
+  for key in screen.textures.keys:
+    screen.textures[key].destroy
   screen.renderer.destroy
   screen.window.destroy
+
+proc addTexture*(screen: Screen, filename: string) =
+  screen.textures[filename] = newDrawable(screen.renderer, filename)
 
 proc addSprite*(screen: Screen, sprite: Sprite) =
   screen.sprites.add(sprite)

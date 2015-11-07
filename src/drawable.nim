@@ -2,10 +2,10 @@ from os import nil
 import sdl2, sdl2/image
 import common_types, util
 
-type Drawable* = object of RootObj
+type Drawable* = ref object of RootObj
   texture: TexturePtr
 
-proc initDrawable*(ren: RendererPtr, file: string): Drawable =
+proc newDrawable*(ren: RendererPtr, file: string): Drawable =
   return Drawable(texture: loadTexture(ren, getResourceFile(file)))
 
 proc destroy*(drawable: Drawable) =

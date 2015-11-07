@@ -1,5 +1,5 @@
 import os, tables, json
-from sdl2 import nil
+import sdl2
 import drawable, common_types, util
 
 type
@@ -15,7 +15,7 @@ type
     time: int
     resetTimer: int  # decrement by 1 on each render
   Sprite* = ref object of RootObj
-    tex: Drawable
+    tex*: Drawable
     zIndex*: ZIndex
     screenPos*: Position
     states*: array[AnimationState, seq[Frame]]
@@ -32,19 +32,19 @@ proc newFrame(view: View, name: string, time: int): Frame =
   )
 
 proc destroy*(sprite: Sprite) =
-  sprite.tex.destroy
+  discard
 
 proc newSprite*(
-  ren: sdl2.RendererPtr,
+  ren: RendererPtr,
   zIndex: ZIndex,
-  image: string,
+  tex: Drawable,
   animatedBy: AnimatedBy = AnimatedBy.None,
   startingFrame: int = 0,
   screenPos: Position = Position(x: 0, y: 0),
-  states: array[AnimationState, seq[Frame]],
+  states: array[AnimationState, seq[Frame]]
 ): Sprite =
   return Sprite(
-    tex: initDrawable(ren, image),
+    tex: tex,
     zIndex: zIndex,
     screenPos: screenPos,
     states: states,
@@ -71,7 +71,7 @@ proc animate*(sprite: Sprite) =
     sprite.frameStep
     frame.resetTimer = frame.time
 
-proc render*(sprite: Sprite, ren: sdl2.RendererPtr) =
+proc render*(sprite: Sprite, ren: RendererPtr) =
   let frame = sprite.states[sprite.currentState][sprite.currentFrame]
   sprite.tex.render(
     ren,
